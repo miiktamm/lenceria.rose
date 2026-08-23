@@ -55,6 +55,35 @@
             font-family: 'Playfair Display', serif;
         }
 
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .catalog-page-light {
+            background-color: #FFFFFF !important;
+        }
+
+        .catalog-page-light .product-card {
+            background-color: #FFFFFF !important;
+        }
+
+        .catalog-page-light .text-roseDark,
+        .catalog-page-light .text-gray-400,
+        .catalog-page-light .text-gray-500,
+        .catalog-page-light .product-price {
+            color: #1A1A1A !important;
+        }
+
+        .catalog-page-light .border-white\/10,
+        .catalog-page-light .border-white\/20 {
+            border-color: #E5E5E5 !important;
+        }
+
         /* Paleta oscura para tarjetas, paneles y controles de toda la tienda. */
         .bg-white,
         .bg-gray-50 {
@@ -1450,6 +1479,7 @@
             const [bestSellerIndex, setBestSellerIndex] = useState(0);
             const imageTouchStarts = useRef({});
             const bestSellersCarouselRef = useRef(null);
+            const categoryCarouselRef = useRef(null);
 
             // Setup default selected size & color per product
             useEffect(() => {
@@ -1474,7 +1504,7 @@
             useEffect(() => {
                 const bestSellersInterval = setInterval(() => {
                     setBestSellerIndex(currentIndex => (currentIndex + 1) % BEST_SELLER_IDS.length);
-                }, 3500);
+                }, 1600);
 
                 return () => clearInterval(bestSellersInterval);
             }, []);
@@ -1499,6 +1529,16 @@
 
             const handleSizeChange = (productId, size) => {
                 setSelectedSizes(prev => ({ ...prev, [productId]: size }));
+            };
+
+            const scrollCategoryCards = () => {
+                const carousel = categoryCarouselRef.current;
+                if (!carousel) return;
+
+                carousel.scrollBy({
+                    left: carousel.clientWidth * 0.75,
+                    behavior: "smooth"
+                });
             };
 
             const handleColorChange = (productId, color) => {
@@ -1737,7 +1777,8 @@
                                 <p className="font-brand text-[10px] font-bold tracking-[0.28em] text-roseMagenta uppercase">Elegí tu estilo</p>
                                 <h2 className="mt-2 font-brand text-2xl font-black tracking-wide text-[#1A1A1A] uppercase sm:text-3xl">Explorá por categoría</h2>
                             </div>
-                            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+                            <div className="relative">
+                                <div ref={categoryCarouselRef} className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 pr-10 sm:gap-4 lg:grid lg:grid-cols-5 lg:overflow-visible lg:pr-0">
                                 {CATEGORIES.map(category => {
                                     const categoryProduct = PRODUCTS.find(product => product.category === category);
                                     return (
@@ -1747,7 +1788,7 @@
                                                 setSelectedCategory(category);
                                                 document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
                                             }}
-                                            className="group relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/10 bg-[#292529] text-left shadow-lg"
+                                            className="group relative aspect-[3/4] w-[44%] shrink-0 snap-start overflow-hidden bg-[#292529] text-left shadow-lg sm:w-[30%] lg:w-auto"
                                         >
                                             <img
                                                 src={CATEGORY_IMAGES[category] || categoryProduct.image}
@@ -1758,13 +1799,21 @@
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
                                             <div className="absolute inset-x-0 bottom-0 p-4">
                                                 <h3 className="font-brand text-lg font-black tracking-wide text-white uppercase sm:text-xl">{category}</h3>
-                                                <span className="mt-2 inline-flex rounded-full bg-white px-3 py-1.5 font-brand text-[10px] font-bold tracking-wider text-[#1C191C] uppercase transition-colors group-hover:bg-roseMagenta group-hover:text-white">
+                                                <span className="mt-2 inline-flex bg-roseMagenta px-3 py-1.5 font-brand text-[10px] font-bold tracking-wider text-white uppercase transition-colors group-hover:bg-white group-hover:text-[#1C191C]">
                                                     Ver todo
                                                 </span>
                                             </div>
                                         </button>
                                     );
                                 })}
+                                </div>
+                                <button
+                                    onClick={scrollCategoryCards}
+                                    aria-label="Ver más categorías"
+                                    className="absolute right-0 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-[#292529] text-2xl text-white shadow-lg transition-transform hover:scale-110 active:scale-95 lg:hidden"
+                                >
+                                    ›
+                                </button>
                             </div>
                         </div>
                     </section>
@@ -1780,7 +1829,16 @@
                                 <span className="hidden font-brand text-[10px] font-bold tracking-wider text-white/60 uppercase sm:block">Elegidos por ustedes</span>
                             </div>
 
-                            <div ref={bestSellersCarouselRef} className="flex gap-4 overflow-x-hidden scroll-smooth" aria-label="Carrusel de productos más vendidos">
+                            <div
+                                ref={bestSellersCarouselRef}
+                                onScroll={(event) => {
+                                    const carousel = event.currentTarget;
+                                    const nextIndex = Math.round(carousel.scrollLeft / (carousel.clientWidth / 2));
+                                    setBestSellerIndex(Math.min(nextIndex, bestSellers.length - 1));
+                                }}
+                                className="hide-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth touch-pan-x"
+                                aria-label="Carrusel de productos más vendidos"
+                            >
                                 {bestSellers.map(product => (
                                     <button
                                         key={product.id}
@@ -1788,7 +1846,7 @@
                                             setSelectedCategory(product.category);
                                             document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
                                         }}
-                                        className="group w-[48%] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#292529] text-left shadow-lg sm:w-[31%] lg:w-[19%]"
+                                        className="group w-[48%] shrink-0 snap-start overflow-hidden bg-[#292529] text-left shadow-lg sm:w-[31%] lg:w-[19%]"
                                     >
                                         <div className="aspect-[4/5] overflow-hidden bg-[#171417]">
                                             <img
@@ -1800,7 +1858,7 @@
                                         </div>
                                         <div className="p-3 sm:p-4">
                                             <p className="line-clamp-2 min-h-9 font-brand text-[11px] font-bold leading-snug tracking-wide text-white uppercase">{product.name}</p>
-                                            <p className="mt-2 font-brand text-sm font-black text-roseAccent">${product.price.toLocaleString('es-AR')}</p>
+                                            <p className="mt-2 font-brand text-sm font-black text-white">${product.price.toLocaleString('es-AR')}</p>
                                         </div>
                                     </button>
                                 ))}
@@ -1821,7 +1879,7 @@
                     </section>
 
                     {/* Main Content Area */}
-                    <main id="catalogo" className="mx-auto max-w-6xl px-4 pt-8 space-y-6 sm:px-6">
+                    <main id="catalogo" className="catalog-page-light mx-auto max-w-6xl space-y-6 px-4 pt-8 sm:px-6">
 
                         {/* Dynamic Category Title Banner */}
                         <div className="flex justify-between items-center border-b border-roseAccent pb-2">
@@ -1846,7 +1904,7 @@
                                 </button>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
                                 {filteredProducts.map(product => {
                                     const currentColor = selectedColors[product.id] || product.colors[0];
                                     const currentSize = selectedSizes[product.id] || product.sizes[0];
@@ -1856,7 +1914,7 @@
                                     return (
                                         <div
                                             key={product.id}
-                                            className="overflow-hidden border border-white/10 bg-[#201D20] shadow-sm transition-shadow hover:shadow-xl"
+                                            className="product-card overflow-hidden bg-white shadow-sm transition-shadow hover:shadow-xl sm:border sm:border-white/10 sm:bg-[#201D20]"
                                         >
                                             <div
                                                 className="relative aspect-[4/5] overflow-hidden group touch-pan-y"
@@ -1870,7 +1928,7 @@
                                                     loading="lazy"
                                                 />
                                                 {product.unavailableImageColors?.includes(currentColor) && (
-                                                    <span className="absolute right-3 top-3 rounded-full bg-black/65 px-3 py-1.5 text-[10px] font-bold tracking-wide text-white uppercase backdrop-blur-sm">
+                                                    <span className="absolute right-2 top-2 rounded-full bg-black/65 px-2 py-1 text-[8px] font-bold tracking-wide text-white uppercase backdrop-blur-sm sm:right-3 sm:top-3 sm:px-3 sm:py-1.5 sm:text-[10px]">
                                                         Imagen próximamente
                                                     </span>
                                                 )}
@@ -1879,25 +1937,25 @@
                                                         <button
                                                             onClick={() => setSelectedImageIndices(prev => ({ ...prev, [product.id]: (selectedImageIndex - 1 + productImages.length) % productImages.length }))}
                                                             aria-label={`Ver imagen anterior de ${product.name}`}
-                                                            className="absolute left-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-lg text-white backdrop-blur-sm transition-colors hover:bg-black/65"
+                                                            className="absolute left-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-base text-white backdrop-blur-sm transition-colors hover:bg-black/65 sm:left-3 sm:h-8 sm:w-8 sm:text-lg"
                                                         >
                                                             ‹
                                                         </button>
                                                         <button
                                                             onClick={() => setSelectedImageIndices(prev => ({ ...prev, [product.id]: (selectedImageIndex + 1) % productImages.length }))}
                                                             aria-label={`Ver imagen siguiente de ${product.name}`}
-                                                            className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-lg text-white backdrop-blur-sm transition-colors hover:bg-black/65"
+                                                            className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-base text-white backdrop-blur-sm transition-colors hover:bg-black/65 sm:right-3 sm:h-8 sm:w-8 sm:text-lg"
                                                         >
                                                             ›
                                                         </button>
-                                                        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/35 px-2 py-1.5 backdrop-blur-sm" aria-label="Vistas del producto">
+                                                        <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1 rounded-full bg-black/35 px-1.5 py-1 backdrop-blur-sm sm:bottom-3 sm:gap-1.5 sm:px-2 sm:py-1.5" aria-label="Vistas del producto">
                                                             {productImages.map((image, imageIndex) => (
                                                                 <button
                                                                     key={image}
                                                                     onClick={() => setSelectedImageIndices(prev => ({ ...prev, [product.id]: imageIndex }))}
                                                                     aria-label={`Ver imagen ${imageIndex + 1} de ${product.name}`}
                                                                     aria-pressed={selectedImageIndex === imageIndex}
-                                                                    className={`h-2 w-2 rounded-full transition-transform ${selectedImageIndex === imageIndex ? 'scale-125 bg-white' : 'bg-white/60 hover:bg-white'}`}
+                                                                    className={`h-1.5 w-1.5 rounded-full transition-transform sm:h-2 sm:w-2 ${selectedImageIndex === imageIndex ? 'scale-125 bg-white' : 'bg-white/60 hover:bg-white'}`}
                                                                 />
                                                             ))}
                                                         </div>
@@ -1905,9 +1963,9 @@
                                                 )}
                                             </div>
 
-                                            <div className="flex flex-1 flex-col items-start p-5">
-                                                <div className="flex w-full items-center justify-between gap-3 border-b border-white/10 pb-4">
-                                                    <div className="flex items-center gap-2" aria-label="Opciones de color">
+                                            <div className="flex flex-1 flex-col items-start p-3 sm:p-5">
+                                                <div className="flex w-full items-center justify-between gap-2 border-b border-black/10 pb-3 sm:gap-3 sm:border-white/10 sm:pb-4">
+                                                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2" aria-label="Opciones de color">
                                                         {product.colors.map(color => {
                                                             const isSelected = currentColor === color;
                                                             return (
@@ -1917,26 +1975,26 @@
                                                                     aria-label={`Color ${color}`}
                                                                     aria-pressed={isSelected}
                                                                     title={color}
-                                                                    className={`h-5 w-5 rounded-full border transition-transform ${isSelected ? 'scale-110 border-white ring-2 ring-roseMagenta ring-offset-2 ring-offset-[#201D20]' : 'border-white/30 hover:scale-110'}`}
+                                                                    className={`h-4 w-4 rounded-full border transition-transform sm:h-5 sm:w-5 ${isSelected ? 'scale-110 border-white ring-2 ring-roseMagenta ring-offset-2 ring-offset-white sm:ring-offset-[#201D20]' : 'border-black/30 hover:scale-110 sm:border-white/30'}`}
                                                                     style={getSwatchStyle(product, color)}
                                                                 />
                                                             );
                                                         })}
                                                     </div>
-                                                    <span className="font-brand text-[10px] font-bold tracking-wider text-roseDark uppercase">{product.brand || "ANDRESSA"}</span>
+                                                    <span className="hidden font-brand text-[10px] font-bold tracking-wider text-roseDark uppercase sm:block">{product.brand || "ANDRESSA"}</span>
                                                 </div>
-                                                <h3 className="mt-4 font-sans text-[15px] font-medium leading-snug text-roseDark">
+                                                <h3 className="mt-3 font-sans text-[13px] font-medium leading-snug text-roseDark sm:mt-4 sm:text-[15px]">
                                                     {product.name}
                                                 </h3>
-                                                <div className="mt-4">
-                                                    <span className="font-brand text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase">Talle</span>
-                                                    <div className="mt-2 flex flex-wrap gap-1.5">
+                                                <div className="mt-3 sm:mt-4">
+                                                    <span className="hidden font-brand text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase sm:block">Talle</span>
+                                                    <div className="flex flex-wrap gap-1 sm:mt-2 sm:gap-1.5">
                                                         {product.sizes.map(size => (
                                                             <button
                                                                 key={size}
                                                                 onClick={() => handleSizeChange(product.id, size)}
                                                                 aria-pressed={currentSize === size}
-                                                                className={`min-w-8 rounded-full border px-2 py-1 text-[10px] font-bold transition-colors ${currentSize === size
+                                                                className={`min-w-7 rounded-full border px-1.5 py-1 text-[9px] font-bold transition-colors sm:min-w-8 sm:px-2 sm:text-[10px] ${currentSize === size
                                                                     ? 'border-roseMagenta bg-roseMagenta text-white'
                                                                     : 'border-white/20 text-roseDark hover:border-roseMagenta'
                                                                     }`}
@@ -1946,12 +2004,12 @@
                                                         ))}
                                                     </div>
                                                 </div>
-                                                <span className="mt-3 font-sans text-xl font-semibold text-white">
+                                                <span className="product-price mt-3 font-sans text-base font-semibold text-[#1A1A1A] sm:text-xl sm:text-white">
                                                     ${product.price.toLocaleString('es-AR')}
                                                 </span>
                                                 <button
                                                     onClick={() => addToCart(product)}
-                                                    className="mt-5 rounded-full bg-[#101010] px-7 py-2.5 font-sans text-xs font-semibold text-white transition-colors hover:bg-roseMagenta"
+                                                    className="mt-3 w-full rounded-full bg-[#101010] px-2 py-2 font-sans text-[10px] font-semibold text-white transition-colors hover:bg-roseMagenta sm:mt-5 sm:w-auto sm:px-7 sm:py-2.5 sm:text-xs"
                                                 >
                                                     Comprar
                                                 </button>
