@@ -1,0 +1,2180 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ROSÉ Lencería - Catálogo & Pedidos</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        roseMagenta: '#D81B7D',
+                        roseDark: '#F8F5F6',
+                        roseBlush: '#302A2D',
+                        roseAccent: '#6B4658',
+                        roseSoftBg: '#242124'
+                    },
+                    fontFamily: {
+                        montserrat: ['Montserrat', 'sans-serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            background-color: #171517;
+            color: #F8F5F6;
+        }
+
+        html,
+        body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        .font-brand {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Paleta oscura para tarjetas, paneles y controles de toda la tienda. */
+        .bg-white,
+        .bg-gray-50 {
+            background-color: #242124 !important;
+        }
+
+        .bg-gray-100 {
+            background-color: #302A2D !important;
+        }
+
+        .bg-roseDark {
+            background-color: #151315 !important;
+        }
+
+        .bg-roseDark\/60 {
+            background-color: rgb(0 0 0 / 0.6) !important;
+        }
+
+        .bg-roseDark\/80 {
+            background-color: rgb(0 0 0 / 0.8) !important;
+        }
+
+        .hover\:bg-roseDark:hover {
+            background-color: #151315 !important;
+        }
+
+        .text-gray-300 {
+            color: #B9AFB4 !important;
+        }
+
+        .text-gray-400 {
+            color: #C9C0C5 !important;
+        }
+
+        .text-gray-500 {
+            color: #D2C9CE !important;
+        }
+
+        .text-gray-600 {
+            color: #DDD5D9 !important;
+        }
+
+        .border-gray-100,
+        .border-gray-200 {
+            border-color: #4A4045 !important;
+        }
+
+        input,
+        textarea {
+            color: #F8F5F6;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #C9C0C5;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .animate-slide-in-left {
+            animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #E5B2C6;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        // Custom SVGs for Branding & Icons
+        const Icons = {
+            Menu: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></svg>
+            ),
+            ChevronRight: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+            ),
+            Cart: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
+            ),
+            X: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            ),
+            Plus: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            ),
+            Minus: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            ),
+            Search: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+            ),
+            Heart: ({ filled }) => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill={filled ? "#D81B7D" : "none"} stroke={filled ? "#D81B7D" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>
+            ),
+            WhatsApp: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+            ),
+            Instagram: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
+            ),
+            Sparkles: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z" /></svg>
+            ),
+            Bag: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
+            ),
+            Truck: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="2" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg>
+            ),
+            LogoRose: ({ dark = false, compact = false }) => (
+                <div className="flex justify-center" aria-label="ROSÉ Lencería">
+                    <div className={`relative overflow-hidden ${compact ? 'h-12 w-[130px]' : 'h-[58px] w-[160px]'}`}>
+                        <img
+                            src={dark ? "assets/logo-rose-dark.png" : "assets/logo-rose.png"}
+                            alt="ROSÉ Lencería"
+                            className={`absolute left-1/2 max-w-none -translate-x-1/2 ${compact ? 'top-[-40px] w-[130px]' : 'top-[-50px] w-[160px]'}`}
+                        />
+                    </div>
+                </div>
+            )
+        };
+
+        const CATEGORIES = ["PACKS", "CONJUNTOS", "CORPIÑOS", "BODYS", "PIJAMAS"];
+        const WHATSAPP_PHONE = "5491161895707";
+        const AVAILABLE_SIZES = ["85", "90", "95", "100", "105"];
+        const CATEGORY_IMAGES = {
+            PACKS: "imagenes/PACKS/kaury.puntilla.png",
+            CONJUNTOS: "imagenes/portadaconjuntos.jpeg",
+            BODYS: "imagenes/portadabodys.jpg",
+            PIJAMAS: "imagenes/PIJAMAS/viscosarosadior.png"
+        };
+        const HERO_SLIDES = [
+            {
+                image: "imagenes/carrusel1.jpeg",
+                title: "Nueva colección",
+                subtitle: "Diseños que te acompañan todos los días",
+                category: "CONJUNTOS"
+            },
+            {
+                image: "imagenes/carrusel2.jpeg",
+                title: "Sentite vos",
+                subtitle: "Lencería pensada para vos",
+                category: "BODYS"
+            },
+            {
+                image: "imagenes/carrusel3.jpeg",
+                title: "Packs favoritos",
+                subtitle: "Comodidad y estilo para cada momento",
+                category: "PACKS"
+            }
+        ];
+        const COLOR_SWATCHES = {
+            negro: '#090909', blanco: '#F8F8F8', nude: '#D7AE99', rosa: '#D81B7D',
+            magenta: '#D81B7D', vino: '#6D2037', bordeaux: '#6D2037', rojo: '#C71F32',
+            verde: '#2E6B59', gris: '#777477', pastel: '#D9B4C2', surtido: '#9A6C80'
+        };
+
+        const getSwatchColor = (colorName) => {
+            const matchingTone = Object.keys(COLOR_SWATCHES).find(tone => colorName.toLowerCase().includes(tone));
+            return COLOR_SWATCHES[matchingTone] || '#D81B7D';
+        };
+
+        const getSwatchStyle = (product, color) => ({
+            background: product.colorSwatches?.[color] || getSwatchColor(color)
+        });
+
+        // Build a gallery from explicit photos and the images assigned to each color.
+        const getProductImages = (product) => [...new Set([
+            ...(product.images || []),
+            ...Object.values(product.imagesByColor || {}),
+            product.image
+        ].filter(Boolean))];
+
+        const getProductImage = (product, color, imageIndex = 0) => {
+            const images = getProductImages(product);
+            return images[imageIndex] || images[0] || product.imagesByColor?.[color] || product.image;
+        };
+
+        const PRODUCTS = [
+            // CATEGORIA: PACKS
+            {
+                id: 68,
+                category: "PACKS",
+                name: "PACK X2 COLALESS DE ALGODÓN CON LYCRA Y ELÁSTICO",
+                description: "Pack x2 de colaless de algodón con lycra y elástico Andressa en cintura.",
+                price: 19400,
+                sizes: ["2", "3"],
+                colors: ["Blanco", "Negro", "Mostaza", "Gris"],
+                image: "imagenes/PACKS/art68.blanco.jpeg",
+                imagesByColor: {
+                    "Blanco": "imagenes/PACKS/art.68blanco.png",
+                    "Negro": "imagenes/PACKS/art68negro.png",
+                    "Mostaza": "imagenes/PACKS/art68.negromostaza.jpeg",
+                    "Gris": "imagenes/PACKS/art68.gris.png"
+                },
+                isNew: true
+            },
+            {
+                id: 100,
+                category: "PACKS",
+                name: "PACK X3 COLALESS REGULABLE DE PUNTILLA",
+                description: "Pack x3 de colaless regulable de puntilla.",
+                price: 14600,
+                sizes: ["Único"],
+                colors: ["Blanco – Negro – Rojo", "Fucsia – Rosa vintage – Uva"],
+                colorSwatches: {
+                    "Blanco – Negro – Rojo": "conic-gradient(#F8F8F8 0deg 120deg, #090909 120deg 240deg, #C71F32 240deg 360deg)",
+                    "Fucsia – Rosa vintage – Uva": "conic-gradient(#D81B7D 0deg 120deg, #C985A5 120deg 240deg, #6F2A5A 240deg 360deg)"
+                },
+                imagesByColor: {
+                    "Blanco – Negro – Rojo": "imagenes/PACKS/art100.negro.jpeg",
+                    "Fucsia – Rosa vintage – Uva": "imagenes/PACKS/art.100blanco.png"
+                },
+                brand: "AVRIL KAURY",
+                image: "imagenes/PACKS/art100.rojo.jpeg"
+            },
+            {
+                id: 103,
+                category: "PACKS",
+                name: "PACK X3 COLALESS CALVIN KLEIN",
+                description: "Combo imperdible de 2 conjuntos bralette sin aro de encaje floral con sus dos colaless a juego.",
+                price: 13000,
+                sizes: ["Único"],
+                colors: ["Negro"],
+                brand: "CALVIN KLEIN",
+                image: "imagenes/PACKS/calvink.jpeg"
+            },
+            {
+                id: 8010,
+                category: "PACKS",
+                name: "PACK X3 BÁSICAS COLALESS ALGODÓN Y LYCRA",
+                description: "Pack x3 de colaless básicas de algodón y lycra.",
+                price: 15200,
+                sizes: ["2", "4"],
+                colors: ["Color único"],
+                colorSwatches: { "Color único": "#777477" },
+                brand: "ELEMENTO",
+                image: "imagenes/PACKS/elementox3.png",
+                images: [
+                    "imagenes/PACKS/elementox3.png",
+                    "imagenes/PACKS/elementox3.1.png",
+                    "imagenes/PACKS/elementox3.2.png"
+                ]
+            },
+            {
+                id: 8020,
+                category: "PACKS",
+                name: "PACK X3 COLALESS REGULABLE ALGODÓN CON LYCRA",
+                description: "Pack x3 de colaless regulable de algodón con lycra.",
+                price: 17800,
+                sizes: ["Único"],
+                colors: ["Color único"],
+                colorSwatches: { "Color único": "#777477" },
+                brand: "ELEMENTO",
+                image: "imagenes/PACKS/elemento.reg1.png",
+                images: [
+                    "imagenes/PACKS/elemento.reg1.png",
+                    "imagenes/PACKS/elemento.reg2.png",
+                    "imagenes/PACKS/elementox3.2.png"
+                ]
+            },
+            {
+                id: 34,
+                category: "PACKS",
+                name: "PACK X3 COLALESS DE ALGODÓN",
+                description: "Pack x3 de colaless de algodón.",
+                price: 14200,
+                sizes: ["Único"],
+                colors: ["Color único"],
+                colorSwatches: { "Color único": "#777477" },
+                brand: "KAURY",
+                image: "imagenes/PACKS/kauryx3.png"
+            },
+            {
+                id: 163,
+                category: "PACKS",
+                name: "PACK X3 COLALESS REGULABLE DE PUNTILLA",
+                description: "Pack x3 de colaless regulable de puntilla.",
+                price: 19400,
+                sizes: ["Único"],
+                colors: ["Color único"],
+                colorSwatches: { "Color único": "#777477" },
+                brand: "KAURY",
+                image: "imagenes/PACKS/kaury.puntilla.png"
+            },
+            {
+                id: 284,
+                category: "PACKS",
+                name: "PACK X3 COLALESS EN ALGODÓN",
+                description: "Pack x3 de colaless en algodón.",
+                price: 15200,
+                sizes: ["2", "3", "4"],
+                colors: ["Color único"],
+                colorSwatches: { "Color único": "#777477" },
+                brand: "TRENDA",
+                image: "imagenes/PACKS/art.284.png"
+            },
+            {
+                id: 35,
+                category: "PACKS",
+                name: "PACK X3 VEDETINA BÁSICA DE ALGODÓN",
+                description: "Pack x3 de vedetinas básicas de algodón.",
+                price: 16400,
+                sizes: ["Único"],
+                colors: ["Color único"],
+                colorSwatches: { "Color único": "#777477" },
+                brand: "KAURY",
+                image: "imagenes/PACKS/art.35trenda.png",
+                images: [
+                    "imagenes/PACKS/art.35trenda.png",
+                    "imagenes/PACKS/art.35modelo.png"
+                ]
+            },
+            {
+                id: "0.1",
+                category: "PACKS",
+                name: "PACK X3 VEDETINA",
+                description: "Pack x3 de vedetinas.",
+                price: 13000,
+                sizes: ["Único"],
+                colors: ["Color único"],
+                colorSwatches: { "Color único": "#777477" },
+                brand: "CALVIN KLEIN",
+                image: "imagenes/PACKS/vedetina.ck.png"
+            },
+            {
+                id: 115,
+                category: "PACKS",
+                name: "PACK X3 VEDETINA DE MORLEY CON ELÁSTICO PERSONALIZADO",
+                description: "Pack x3 de vedetinas de morley con elástico personalizado.",
+                price: 14600,
+                sizes: ["Único"],
+                colors: ["Color único"],
+                colorSwatches: { "Color único": "#777477" },
+                brand: "KAURY",
+                image: "imagenes/PACKS/art.115kaury.png",
+                images: [
+                    "imagenes/PACKS/art.115kaury.png",
+                    "imagenes/PACKS/art.115modelo.png"
+                ]
+            },
+            {
+                id: 282,
+                category: "PACKS",
+                name: "PACK X3 VEDETINA BÁSICA EN ALGODÓN",
+                description: "Pack x3 de vedetinas básicas en algodón.",
+                price: 16800,
+                sizes: ["2", "3", "4"],
+                colors: ["Color único"],
+                colorSwatches: { "Color único": "#777477" },
+                brand: "TRENDA",
+                image: "imagenes/PACKS/art.282.trenda1.png",
+                images: [
+                    "imagenes/PACKS/art.282.trenda1.png",
+                    "imagenes/PACKS/art.282.trenda2.png",
+                    "imagenes/PACKS/art.282.trenda3.png"
+                ]
+            },
+
+            // CATEGORIA: CONJUNTOS
+            {
+                id: 1001,
+                category: "CONJUNTOS",
+                name: "ART. 1001 AVRIL KAURY",
+                description: "Conjunto de puntilla. Corpiño triángulo y colaless regulable.",
+                price: 13200,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Blanco", "Negro", "Fucsia", "Rosa", "Rojo", "Chocolate"],
+                brand: "AVRIL KAURY",
+                image: "imagenes/CONJUNTOS/art.101blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.101blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.101blanco.png",
+                    "Fucsia": "imagenes/CONJUNTOS/art.101fucsia.png",
+                    "Rosa": "imagenes/CONJUNTOS/art.101rosa.png",
+                    "Rojo": "imagenes/CONJUNTOS/art.101fucsia.png",
+                    "Chocolate": "imagenes/CONJUNTOS/art.101rosa.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Fucsia": "#D81B7D",
+                    "Rosa": "#F4A6C1",
+                    "Rojo": "#C71F32",
+                    "Chocolate": "#5A3825"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.101blanco.png",
+                    "imagenes/CONJUNTOS/art.101fucsia.png",
+                    "imagenes/CONJUNTOS/art.101rosa.png"
+                ],
+                unavailableImageColors: ["Negro", "Rojo", "Chocolate"],
+                isFeatured: true
+            },
+            {
+                id: 3010,
+                category: "CONJUNTOS",
+                name: "ART. 3010 AVRIL KAURY",
+                description: "Conjunto de algodón con elástico personalizado. Corpiño triangulito y colaless.",
+                price: 15600,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Blanco", "Negro", "Nude", "Gris Melange", "Chocolate", "Gris Humo", "Morado", "Rosa"],
+                brand: "AVRIL KAURY",
+                image: "imagenes/CONJUNTOS/art.3010blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.3010blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.3010negro.png",
+                    "Nude": "imagenes/CONJUNTOS/art.3010morado.png",
+                    "Gris Melange": "imagenes/CONJUNTOS/art.3010gris.png",
+                    "Chocolate": "imagenes/CONJUNTOS/art.3010.png",
+                    "Gris Humo": "imagenes/CONJUNTOS/art.3010gris.png",
+                    "Morado": "imagenes/CONJUNTOS/art.3010morado.png",
+                    "Rosa": "imagenes/CONJUNTOS/art3010.rosa.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Nude": "#D4A88E",
+                    "Gris Melange": "#A6A6A6",
+                    "Chocolate": "#5A3825",
+                    "Gris Humo": "#707070",
+                    "Morado": "#77539B",
+                    "Rosa": "#F4A6C1"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.3010blanco.png",
+                    "imagenes/CONJUNTOS/art.3010negro.png",
+                    "imagenes/CONJUNTOS/art.3010morado.png",
+                    "imagenes/CONJUNTOS/art.3010gris.png",
+                    "imagenes/CONJUNTOS/art.3010.png",
+                    "imagenes/CONJUNTOS/art3010.rosa.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 3013,
+                category: "CONJUNTOS",
+                name: "ART. 3013 AVRIL KAURY",
+                description: "Conjunto de algodón. Corpiño triángulo con taza soft sin push up y colaless.",
+                price: 20000,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Blanco", "Negro", "Azul", "Gris Melange", "Rosa", "Morado", "Gris Humo", "Chocolate"],
+                brand: "AVRIL KAURY",
+                image: "imagenes/CONJUNTOS/art.3013blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.3013blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.3013.png",
+                    "Azul": "imagenes/CONJUNTOS/art.3013azul.png",
+                    "Gris Melange": "imagenes/CONJUNTOS/art.3013gris.png",
+                    "Rosa": "imagenes/CONJUNTOS/art.3013rosa.png",
+                    "Morado": "imagenes/CONJUNTOS/art.3013rosa.png",
+                    "Gris Humo": "imagenes/CONJUNTOS/art.3013gris.png",
+                    "Chocolate": "imagenes/CONJUNTOS/art.3013chocolate.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Azul": "#405D9D",
+                    "Gris Melange": "#A6A6A6",
+                    "Rosa": "#F4A6C1",
+                    "Morado": "#77539B",
+                    "Gris Humo": "#707070",
+                    "Chocolate": "#5A3825"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.3013blanco.png",
+                    "imagenes/CONJUNTOS/art.3013.png",
+                    "imagenes/CONJUNTOS/art.3013azul.png",
+                    "imagenes/CONJUNTOS/art.3013gris.png",
+                    "imagenes/CONJUNTOS/art.3013rosa.png",
+                    "imagenes/CONJUNTOS/art.3013chocolate.png"
+                ],
+                unavailableImageColors: ["Morado", "Gris Humo"],
+                isFeatured: true
+            },
+            {
+                id: 3008,
+                category: "CONJUNTOS",
+                name: "ART. 3008 AVRIL KAURY",
+                description: "Conjunto de algodón con elástico personalizado. Corpiño armado con push up y colaless.",
+                price: 21000,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Blanco", "Negro", "Uva", "Nude"],
+                brand: "AVRIL KAURY",
+                image: "imagenes/CONJUNTOS/art.3008blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.3008blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.3008negro.png",
+                    "Uva": "imagenes/CONJUNTOS/art.3008.uva.png",
+                    "Nude": "imagenes/CONJUNTOS/art.3008nude.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Uva": "#5D315C",
+                    "Nude": "#D4A88E"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.3008blanco.png",
+                    "imagenes/CONJUNTOS/art.3008negro.png",
+                    "imagenes/CONJUNTOS/art.3008.uva.png",
+                    "imagenes/CONJUNTOS/art.3008nude.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 3021,
+                category: "CONJUNTOS",
+                name: "ART. 3021 AVRIL KAURY",
+                description: "Conjunto de algodón estampado con mini corazones. Corpiño armado con push up y colaless.",
+                price: 21000,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Azul", "Rosa"],
+                brand: "AVRIL KAURY",
+                image: "imagenes/CONJUNTOS/art.3021azul.png",
+                imagesByColor: {
+                    "Azul": "imagenes/CONJUNTOS/art.3021azul.png",
+                    "Rosa": "imagenes/CONJUNTOS/art.3021rosa.png"
+                },
+                colorSwatches: {
+                    "Azul": "#405D9D",
+                    "Rosa": "#F4A6C1"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.3021azul.png",
+                    "imagenes/CONJUNTOS/art.3021rosa.png",
+                    "imagenes/CONJUNTOS/art.3021rosa2.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 4030,
+                category: "CONJUNTOS",
+                name: "ART. 4030 KAURY",
+                description: "Conjunto de puntilla y microfibra. Corpiño taza soft con push up y colaless.",
+                price: 28200,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Blanco", "Negro", "Rosa", "Gris"],
+                brand: "KAURY",
+                image: "imagenes/CONJUNTOS/art.4030blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.4030blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.4030negro.png",
+                    "Rosa": "imagenes/CONJUNTOS/art.4030rosa.png",
+                    "Gris": "imagenes/CONJUNTOS/art.4030gris.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Rosa": "#F4A6C1",
+                    "Gris": "#8D8D8D"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.4030blanco.png",
+                    "imagenes/CONJUNTOS/art.4030negro.png",
+                    "imagenes/CONJUNTOS/art.4030rosa.png",
+                    "imagenes/CONJUNTOS/art.4030gris.png",
+                    "imagenes/CONJUNTOS/art.4030.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 8191,
+                category: "CONJUNTOS",
+                name: "ART. 8191 KAURY",
+                description: "Conjunto de microfibra. Corpiño triangulito premoldeado de tela doble y colaless regulable.",
+                price: 24600,
+                sizes: ["85", "90", "95", "100", "105"],
+                colors: ["Blanco", "Negro", "Rosa", "Fresa"],
+                brand: "KAURY",
+                image: "imagenes/CONJUNTOS/art.8191blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.8191blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.8191negro.png",
+                    "Rosa": "imagenes/CONJUNTOS/art.8191rosa.png",
+                    "Fresa": "imagenes/CONJUNTOS/art.8191fresa.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Rosa": "#F4A6C1",
+                    "Fresa": "#D94B63"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.8191blanco.png",
+                    "imagenes/CONJUNTOS/art.8191negro.png",
+                    "imagenes/CONJUNTOS/art.8191rosa.png",
+                    "imagenes/CONJUNTOS/art.8191fresa.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 8193,
+                category: "CONJUNTOS",
+                name: "ART. 8193 KAURY",
+                description: "Conjunto de microfibra. Corpiño premoldeado de tela doble con aro y colaless regulable.",
+                price: 26000,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Negro", "Blanco", "Rosa", "Fresa"],
+                brand: "KAURY",
+                image: "imagenes/CONJUNTOS/art.8193negro.png",
+                imagesByColor: {
+                    "Negro": "imagenes/CONJUNTOS/art.8193negro.png",
+                    "Blanco": "imagenes/CONJUNTOS/art.8193blanco.png",
+                    "Rosa": "imagenes/CONJUNTOS/art.8193rosa.png",
+                    "Fresa": "imagenes/CONJUNTOS/art.8193fresa.png"
+                },
+                colorSwatches: {
+                    "Negro": "#090909",
+                    "Blanco": "#F8F8F8",
+                    "Rosa": "#F4A6C1",
+                    "Fresa": "#D94B63"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.8193negro.png",
+                    "imagenes/CONJUNTOS/art.8193blanco.png",
+                    "imagenes/CONJUNTOS/art.8193rosa.png",
+                    "imagenes/CONJUNTOS/art.8193fresa.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 2065,
+                category: "CONJUNTOS",
+                name: "ART. 2065 SEXY LALI",
+                description: "Conjunto armado con aro de puntilla y culoteless.",
+                price: 24800,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Negro", "Bordo"],
+                brand: "SEXY LALI",
+                image: "imagenes/CONJUNTOS/art.2065.png",
+                imagesByColor: {
+                    "Negro": "imagenes/CONJUNTOS/art.2065negro.png",
+                    "Bordo": "imagenes/CONJUNTOS/art.2065rojo.png"
+                },
+                colorSwatches: {
+                    "Negro": "#090909",
+                    "Bordo": "#741D31"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.2065negro.png",
+                    "imagenes/CONJUNTOS/art.2065rojo.png",
+                    "imagenes/CONJUNTOS/art.2065.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 1058,
+                category: "CONJUNTOS",
+                name: "ART. 1058 SEXY LALI",
+                description: "Conjunto triángulo de encaje y tul sin taza con colaless regulable.",
+                price: 22200,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Blanco", "Negro", "Rojo", "Verde Militar"],
+                brand: "SEXY LALI",
+                image: "imagenes/CONJUNTOS/art.1058blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.1058blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.1058negro.png",
+                    "Rojo": "imagenes/CONJUNTOS/art.1058rojo.png",
+                    "Verde Militar": "imagenes/CONJUNTOS/art.1058verde.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Rojo": "#C71F32",
+                    "Verde Militar": "#4B5635"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.1058blanco.png",
+                    "imagenes/CONJUNTOS/art.1058negro.png",
+                    "imagenes/CONJUNTOS/art.1058rojo.png",
+                    "imagenes/CONJUNTOS/art.1058verde.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 1081,
+                category: "CONJUNTOS",
+                name: "ART. 1081 SEXY LALI",
+                description: "Conjunto triángulo de algodón liso o estampado con colaless.",
+                price: 21400,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Blanco", "Negro", "Rosa", "Print con Marrón", "Print con Negro"],
+                brand: "SEXY LALI",
+                image: "imagenes/CONJUNTOS/art.1081blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.1081blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.1081negro.png",
+                    "Rosa": "imagenes/CONJUNTOS/art.1081rosa.png",
+                    "Print con Marrón": "imagenes/CONJUNTOS/art.1081printconmarron.png",
+                    "Print con Negro": "imagenes/CONJUNTOS/art.1081printconnegro.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Rosa": "#F4A6C1",
+                    "Print con Marrón": "#8A634B",
+                    "Print con Negro": "#3B3838"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.1081blanco.png",
+                    "imagenes/CONJUNTOS/art.1081negro.png",
+                    "imagenes/CONJUNTOS/art.1081rosa.png",
+                    "imagenes/CONJUNTOS/art.1081printconmarron.png",
+                    "imagenes/CONJUNTOS/art.1081printconnegro.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 1089,
+                category: "CONJUNTOS",
+                name: "ART. 1089 SEXY LALI",
+                description: "Conjunto triangulito de morley con colaless regulable.",
+                price: 25400,
+                sizes: ["90", "95", "100", "105", "110"],
+                colors: ["Blanco", "Negro", "Chocolate"],
+                brand: "SEXY LALI",
+                image: "imagenes/CONJUNTOS/art.1089blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.1089negro.png",
+                    "Negro": "imagenes/CONJUNTOS/art.1089negro.png",
+                    "Chocolate": "imagenes/CONJUNTOS/art.1089chocolate.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Chocolate": "#5A3825"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.1089blanco.png",
+                    "imagenes/CONJUNTOS/art.1089negro.png",
+                    "imagenes/CONJUNTOS/art.1089chocolate.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 1075,
+                category: "CONJUNTOS",
+                name: "ART. 1075 SEXY LALI",
+                description: "Conjunto triángulo soft de algodón y lycra con colaless.",
+                price: 23600,
+                sizes: ["85", "90", "95", "100", "105", "110"],
+                colors: ["Blanco", "Negro", "Nude"],
+                brand: "SEXY LALI",
+                image: "imagenes/CONJUNTOS/art.1075blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.1075blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.1075negro.png",
+                    "Nude": "imagenes/CONJUNTOS/art.1075nude.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Nude": "#D4A88E"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.1075blanco.png",
+                    "imagenes/CONJUNTOS/art.1075negro.png",
+                    "imagenes/CONJUNTOS/art.1075nude.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 2005,
+                category: "CONJUNTOS",
+                name: "ART. 2005 SEXY LALI",
+                description: "Conjunto triángulo soft de puntilla con colaless.",
+                price: 25800,
+                sizes: ["85", "90", "95", "100", "105"],
+                colors: ["Blanco", "Negro", "Nude", "Rojo"],
+                brand: "SEXY LALI",
+                image: "imagenes/CONJUNTOS/art.2005blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.2005blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.2005negro.png",
+                    "Nude": "imagenes/CONJUNTOS/art.2005nude.png",
+                    "Rojo": "imagenes/CONJUNTOS/art.2005rojo.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Nude": "#D4A88E",
+                    "Rojo": "#C71F32"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.2005blanco.png",
+                    "imagenes/CONJUNTOS/art.2005negro.png",
+                    "imagenes/CONJUNTOS/art.2005nude.png",
+                    "imagenes/CONJUNTOS/art.2005rojo.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 2090,
+                category: "CONJUNTOS",
+                name: "ART. 2090 SEXY LALI",
+                description: "Conjunto de algodón y lycra con aro y vedetina.",
+                price: 22400,
+                sizes: ["90", "95", "100", "105"],
+                colors: ["Blanco", "Negro", "Nude"],
+                brand: "SEXY LALI",
+                image: "imagenes/CONJUNTOS/art.2090blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.2090blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.2090negro.png",
+                    "Nude": "imagenes/CONJUNTOS/art.2090nude.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Nude": "#D4A88E"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.2090blanco.png",
+                    "imagenes/CONJUNTOS/art.2090negro.png",
+                    "imagenes/CONJUNTOS/art.2090nude.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 2094,
+                category: "CONJUNTOS",
+                name: "ART. 2094 SEXY LALI",
+                description: "Conjunto de encaje con aro, sin taza y con colaless.",
+                price: 21000,
+                sizes: ["90", "95", "100", "105"],
+                colors: ["Blanco", "Negro", "Azul", "Gris"],
+                brand: "SEXY LALI",
+                image: "imagenes/CONJUNTOS/art.2094blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.2094blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.2094negro.png",
+                    "Azul": "imagenes/CONJUNTOS/art.2094azul.png",
+                    "Gris": "imagenes/CONJUNTOS/art.2094gris.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Azul": "#405D9D",
+                    "Gris": "#8D8D8D"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.2094blanco.png",
+                    "imagenes/CONJUNTOS/art.2094negro.png",
+                    "imagenes/CONJUNTOS/art.2094azul.png",
+                    "imagenes/CONJUNTOS/art.2094gris.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 132,
+                category: "CONJUNTOS",
+                name: "ART. 132 TRENDA",
+                description: "Conjunto con cintura, con colaless de algodón y lycra.",
+                price: 17600,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Blanco", "Negro", "Print"],
+                brand: "TRENDA",
+                image: "imagenes/CONJUNTOS/art.132blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.132blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.132negro.png",
+                    "Print": "imagenes/CONJUNTOS/art.132print.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Print": "#A06C53"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.132blanco.png",
+                    "imagenes/CONJUNTOS/art.132negro.png",
+                    "imagenes/CONJUNTOS/art.132print.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 165,
+                category: "CONJUNTOS",
+                name: "ART. 165 TRENDA",
+                description: "Conjunto bralette y colaless con cintura de microfibra y puntilla.",
+                price: 20800,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Negro", "Blanco", "Nude"],
+                brand: "TRENDA",
+                image: "imagenes/CONJUNTOS/art.165negro.png",
+                imagesByColor: {
+                    "Negro": "imagenes/CONJUNTOS/art.165negro.png",
+                    "Blanco": "imagenes/CONJUNTOS/art.165blanco.png",
+                    "Nude": "imagenes/CONJUNTOS/art.165blanco.png"
+                },
+                colorSwatches: {
+                    "Negro": "#090909",
+                    "Blanco": "#F8F8F8",
+                    "Nude": "#D4A88E"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.165negro.png",
+                    "imagenes/CONJUNTOS/art.165blanco.png"
+                ],
+                unavailableImageColors: ["Nude"],
+                isFeatured: true
+            },
+            {
+                id: 234,
+                category: "CONJUNTOS",
+                name: "ART. 234 TRENDA",
+                description: "Conjunto bralette y colaless con elástico y etiqueta de microfibra.",
+                price: 20200,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Blanco", "Negro", "Chocolate"],
+                brand: "TRENDA",
+                image: "imagenes/CONJUNTOS/art.234blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CONJUNTOS/art.234blanco.png",
+                    "Negro": "imagenes/CONJUNTOS/art.234negro.png",
+                    "Chocolate": "imagenes/CONJUNTOS/art.234chocolate.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F8F8F8",
+                    "Negro": "#090909",
+                    "Chocolate": "#5A3825"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.234blanco.png",
+                    "imagenes/CONJUNTOS/art.234negro.png",
+                    "imagenes/CONJUNTOS/art.234chocolate.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 235,
+                category: "CONJUNTOS",
+                name: "ART. 235 TRENDA",
+                description: "Conjunto top y colaless de microfibra morley con elástico y etiqueta.",
+                price: 28200,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Negro", "Blanco", "Nude"],
+                brand: "TRENDA",
+                image: "imagenes/CONJUNTOS/art.235negro.png",
+                imagesByColor: {
+                    "Negro": "imagenes/CONJUNTOS/art.235negro.png",
+                    "Blanco": "imagenes/CONJUNTOS/art.235blanco.png",
+                    "Nude": "imagenes/CONJUNTOS/art.235nude.png"
+                },
+                colorSwatches: {
+                    "Negro": "#090909",
+                    "Blanco": "#F8F8F8",
+                    "Nude": "#D4A88E"
+                },
+                images: [
+                    "imagenes/CONJUNTOS/art.235negro.png",
+                    "imagenes/CONJUNTOS/art.235blanco.png",
+                    "imagenes/CONJUNTOS/art.235nude.png"
+                ],
+                isFeatured: true
+            },
+
+            // CATEGORIA: CORPIÑOS
+            {
+                id: 32,
+                category: "CORPIÑOS",
+                name: "SOUTIEN BÁSICO TRIÁNGULO SOFT",
+                description: "Soutien básico triángulo soft.",
+                price: 23600,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Negro", "Gris", "Nude"],
+                brand: "ANDRESSA",
+                image: "imagenes/CORPIÑOS/art.32negro.jpeg",
+                imagesByColor: {
+                    "Negro": "imagenes/CORPIÑOS/art.32negro.jpeg",
+                    "Gris": "imagenes/CORPIÑOS/art32.gris.png",
+                    "Nude": "imagenes/CORPIÑOS/art.32nude.jpeg"
+                }
+            },
+            {
+                id: 48,
+                category: "CORPIÑOS",
+                name: "SOUTIEN TRIÁNGULO SOFT SIN ARMADO CON BASE, SIN ARO",
+                description: "Soutien triángulo soft sin armado, con base y sin aro. Tela de microfibra y espalda con broche.",
+                price: 32400,
+                sizes: ["90", "95", "100"],
+                colors: ["Negro", "Nude", "Chocolate", "Sofía"],
+                colorSwatches: { "Chocolate": "#4B2E23", "Sofía": "#B27A91" },
+                brand: "ANDRESSA",
+                image: "imagenes/CORPIÑOS/art.48negro.jpeg",
+                imagesByColor: {
+                    "Negro": "imagenes/CORPIÑOS/art.48negro.jpeg",
+                    "Nude": "imagenes/CORPIÑOS/art.48nude.png",
+                    "Chocolate": "imagenes/CORPIÑOS/art.48chocolate.jpeg",
+                    "Sofía": "imagenes/CORPIÑOS/art.48sofia.jpeg"
+                }
+            },
+            {
+                id: 2010,
+                category: "CORPIÑOS",
+                name: "TOP BÁSICO DE MICROFIBRA",
+                description: "Top básico de microfibra con doble tela para mejor agarre, elástico bajo busto y espalda ajustable con gancho de 3 posiciones.",
+                price: 23600,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Blanco", "Negro", "Chocolate", "Nude", "Celeste"],
+                colorSwatches: { "Chocolate": "#4B2E23", "Celeste": "#86C5DA" },
+                brand: "ANDRESSA",
+                image: "imagenes/CORPIÑOS/art.2010negro.png",
+                imagesByColor: {
+                    "Negro": "imagenes/CORPIÑOS/art.2010negro.png",
+                    "Blanco": "imagenes/CORPIÑOS/art.2010blanco.png",
+                    "Nude": "imagenes/CORPIÑOS/art.2010nude.png",
+                    "Celeste": "imagenes/CORPIÑOS/art.2010celeste.jpeg",
+                    "Chocolate": "imagenes/CORPIÑOS/art.2010chocolate.png"
+                }
+            },
+            {
+                id: 21,
+                category: "CORPIÑOS",
+                name: "CORPIÑO SOLO DE ALGODÓN Y PUNTILLA SIN TAZA",
+                description: "Corpiño de algodón y puntilla sin taza.",
+                price: 21800,
+                sizes: ["95", "100", "105", "110"],
+                colors: ["Blanco", "Negro", "Nude"],
+                brand: "SEXY LALI",
+                image: "imagenes/CORPIÑOS/art.916blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CORPIÑOS/art.916blanco.png",
+                    "Nude": "imagenes/CORPIÑOS/art.916nude.png"
+                },
+                unavailableImageColors: ["Negro"]
+            },
+            {
+                id: 213,
+                category: "CORPIÑOS",
+                name: "BRALETTE DOBLE TELA EN MICROFIBRA BÁSICA SIN COSTURAS",
+                description: "Bralette de doble tela en microfibra básica sin costuras.",
+                price: 16000,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Negro", "Blanco", "Nougat"],
+                colorSwatches: { "Nougat": "#C9A27F" },
+                brand: "TRENDA",
+                image: "imagenes/CORPIÑOS/art.213negro.png",
+                imagesByColor: {
+                    "Negro": "imagenes/CORPIÑOS/art.213negro.png",
+                    "Blanco": "imagenes/CORPIÑOS/art.213blanco.png",
+                    "Nougat": "imagenes/CORPIÑOS/art.213nougat.png"
+                }
+            },
+            {
+                id: 214,
+                category: "CORPIÑOS",
+                name: "CORPIÑO BÁSICO DE DOBLE TELA DE MICROFIBRA",
+                description: "Corpiño básico de doble tela de microfibra.",
+                price: 22000,
+                sizes: ["90", "95", "100", "105", "110", "115", "120"],
+                colors: ["Negro", "Blanco", "Nougat"],
+                colorSwatches: { "Nougat": "#C9A27F" },
+                brand: "TRENDA",
+                image: "imagenes/CORPIÑOS/art.214negro.png",
+                imagesByColor: {
+                    "Negro": "imagenes/CORPIÑOS/art.214negro.png",
+                    "Blanco": "imagenes/CORPIÑOS/art.214blanco.png",
+                    "Nougat": "imagenes/CORPIÑOS/art.214nougatt.png"
+                }
+            },
+            {
+                id: 1544,
+                category: "CORPIÑOS",
+                name: "SOUTIEN CON BASE FALSO ARI EN ALGODÓN CON LYCRA",
+                description: "Soutien con base falso aro en algodón con lycra.",
+                price: 16000,
+                sizes: ["90", "95", "100", "105"],
+                colors: ["Negro", "Blanco", "Nougat"],
+                colorSwatches: { "Nougat": "#C9A27F" },
+                brand: "TRENDA",
+                image: "imagenes/CORPIÑOS/art.1544blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/CORPIÑOS/art.1544blanco.png",
+                    "Nougat": "imagenes/CORPIÑOS/art.1544nougat.png"
+                },
+                unavailableImageColors: ["Negro"]
+            },
+
+            // CATEGORIA: BODYS
+            {
+                id: 209,
+                category: "BODYS",
+                name: "ART. 209 TRENDA",
+                description: "Body básico de algodón con bordado.",
+                price: 22000,
+                sizes: ["85", "90", "95", "100", "105"],
+                colors: ["Negro", "Blanco", "Gris", "Petróleo", "Verde"],
+                brand: "TRENDA",
+                image: "imagenes/BODYS/art.209negro.png",
+                imagesByColor: {
+                    "Negro": "imagenes/BODYS/art.209negro.png",
+                    "Blanco": "imagenes/BODYS/art.209blanco.png",
+                    "Gris": "imagenes/BODYS/art.209gris.png",
+                    "Petróleo": "imagenes/BODYS/art.209petroleo.png",
+                    "Verde": "imagenes/BODYS/art.209verde.png"
+                },
+                colorSwatches: {
+                    "Negro": "#090909",
+                    "Blanco": "#F7F5F0",
+                    "Gris": "#8A8A8A",
+                    "Petróleo": "#1F5961",
+                    "Verde": "#4B6E4B"
+                },
+                images: [
+                    "imagenes/BODYS/art.209negro.png",
+                    "imagenes/BODYS/art.209blanco.png",
+                    "imagenes/BODYS/art.209gris.png",
+                    "imagenes/BODYS/art.209petroleo.png",
+                    "imagenes/BODYS/art.209verde.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 5052,
+                category: "BODYS",
+                name: "ART. 5052 TRENDA",
+                description: "Body con aro, puntilla, tul y microfibra con tira y liguero desmontable.",
+                price: 36000,
+                sizes: ["85", "90", "95", "100", "105"],
+                colors: ["Negro"],
+                brand: "TRENDA",
+                image: "imagenes/BODYS/art.5052negro.png",
+                imagesByColor: {
+                    "Negro": "imagenes/BODYS/art.5052negro.png"
+                },
+                colorSwatches: {
+                    "Negro": "#090909"
+                },
+                images: ["imagenes/BODYS/art.5052negro.png"],
+                isFeatured: true
+            },
+            {
+                id: 2012,
+                category: "BODYS",
+                name: "ART. 2012 ANDRESSA",
+                description: "Body de microfibra, con doble tela en busto y con elástico interno de contorno, breteles regulables y ganchos regulables en entrepiernas.",
+                price: 34500,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Blanco", "Negro", "Nude", "Chocolate", "Sofía"],
+                brand: "ANDRESSA",
+                image: "imagenes/BODYS/art2012.blanco.png",
+                imagesByColor: {
+                    "Blanco": "imagenes/BODYS/art2012.blanco.png",
+                    "Negro": "imagenes/BODYS/art2012.negro.png",
+                    "Nude": "imagenes/BODYS/art2012.nude.png",
+                    "Chocolate": "imagenes/BODYS/art2012.chocolate.png",
+                    "Sofía": "imagenes/BODYS/art2012.sofia.png"
+                },
+                colorSwatches: {
+                    "Blanco": "#F7F5F0",
+                    "Negro": "#090909",
+                    "Nude": "#D3AB91",
+                    "Chocolate": "#5A3528",
+                    "Sofía": "#B78C86"
+                },
+                images: [
+                    "imagenes/BODYS/art2012.blanco.png",
+                    "imagenes/BODYS/art2012.negro.png",
+                    "imagenes/BODYS/art2012.nude.png",
+                    "imagenes/BODYS/art2012.chocolate.png",
+                    "imagenes/BODYS/art2012.sofia.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 3015,
+                category: "BODYS",
+                name: "ART. 3015 AVRIL KAURY",
+                description: "Body colaless de algodón con elástico personalizado en espalda.",
+                price: 13000,
+                sizes: ["1", "2", "3"],
+                colors: ["Negro", "Gris Melange"],
+                brand: "AVRIL KAURY",
+                image: "imagenes/BODYS/art.3015negro.png",
+                imagesByColor: {
+                    "Negro": "imagenes/BODYS/art.3015negro.png",
+                    "Gris Melange": "imagenes/BODYS/art.3015gris.png"
+                },
+                colorSwatches: {
+                    "Negro": "#090909",
+                    "Gris Melange": "#A6A6A6"
+                },
+                images: [
+                    "imagenes/BODYS/art.3015negro.png",
+                    "imagenes/BODYS/art.3015gris.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: 2057,
+                category: "BODYS",
+                name: "ART. 2057 ANDRESSA",
+                description: "Body con aro de tul y terciopelo.",
+                price: 39500,
+                sizes: ["85", "90", "95", "100"],
+                colors: ["Nude", "Negro"],
+                brand: "ANDRESSA",
+                image: "imagenes/BODYS/art2057.nude.png",
+                imagesByColor: {
+                    "Nude": "imagenes/BODYS/art2057.nude.png",
+                    "Negro": "imagenes/BODYS/art.2057negro.png"
+                },
+                colorSwatches: {
+                    "Nude": "#D3AB91",
+                    "Negro": "#090909"
+                },
+                images: [
+                    "imagenes/BODYS/art2057.nude.png",
+                    "imagenes/BODYS/art.2057negro.png"
+                ],
+                isFeatured: true
+            },
+
+            // CATEGORIA: PIJAMAS
+            {
+                id: "pijama-viscosa",
+                category: "PIJAMAS",
+                name: "PIJAMA DE VISCOSA",
+                description: "Pijama de viscosa liso con puntilla en musculosa con breteles y short.",
+                price: 29990,
+                sizes: ["S", "M", "L", "XL", "XXL"],
+                colors: ["Gris Claro", "Negro", "Chocolate", "Rosa Dior", "Rosa Bebé", "Gris con Negro", "Celeste"],
+                brand: "PIJAMAS",
+                image: "imagenes/PIJAMAS/viscosagris.png",
+                imagesByColor: {
+                    "Gris Claro": "imagenes/PIJAMAS/viscosagris.png",
+                    "Negro": "imagenes/PIJAMAS/viscosanegro.png",
+                    "Chocolate": "imagenes/PIJAMAS/viscosachocolate.png",
+                    "Rosa Dior": "imagenes/PIJAMAS/viscosarosadior.png",
+                    "Rosa Bebé": "imagenes/PIJAMAS/viscosarosabebe.png",
+                    "Gris con Negro": "imagenes/PIJAMAS/viscosagrisconnegro.png",
+                    "Celeste": "imagenes/PIJAMAS/viscosaceleste.png"
+                },
+                colorSwatches: {
+                    "Gris Claro": "#B8B8B8",
+                    "Negro": "#090909",
+                    "Chocolate": "#5A3528",
+                    "Rosa Dior": "#D58C9A",
+                    "Rosa Bebé": "#F2BBC8",
+                    "Gris con Negro": "#5A5A5A",
+                    "Celeste": "#8EC9DC"
+                },
+                images: [
+                    "imagenes/PIJAMAS/viscosagris.png",
+                    "imagenes/PIJAMAS/viscosanegro.png",
+                    "imagenes/PIJAMAS/viscosachocolate.png",
+                    "imagenes/PIJAMAS/viscosarosadior.png",
+                    "imagenes/PIJAMAS/viscosarosabebe.png",
+                    "imagenes/PIJAMAS/viscosagrisconnegro.png",
+                    "imagenes/PIJAMAS/viscosaceleste.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: "pijama-camisero",
+                category: "PIJAMAS",
+                name: "PIJAMA CAMISERO DE MODAL VISCOSA",
+                description: "Pijama camisero de modal viscosa con vivos y botones.",
+                price: 39990,
+                sizes: ["S", "M", "L", "XL", "XXL"],
+                colors: ["Negro", "Gris", "Chocolate", "Rosa"],
+                brand: "PIJAMAS",
+                image: "imagenes/PIJAMAS/camiseronegro.png",
+                imagesByColor: {
+                    "Negro": "imagenes/PIJAMAS/camiseronegro.png",
+                    "Gris": "imagenes/PIJAMAS/camiserogris.png",
+                    "Chocolate": "imagenes/PIJAMAS/camiserochocolate.png",
+                    "Rosa": "imagenes/PIJAMAS/camiserorosa.png"
+                },
+                colorSwatches: {
+                    "Negro": "#090909",
+                    "Gris": "#8A8A8A",
+                    "Chocolate": "#5A3528",
+                    "Rosa": "#E39AAA"
+                },
+                images: [
+                    "imagenes/PIJAMAS/camiseronegro.png",
+                    "imagenes/PIJAMAS/camiserogris.png",
+                    "imagenes/PIJAMAS/camiserochocolate.png",
+                    "imagenes/PIJAMAS/camiserorosa.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: "pijama-morley-rattier",
+                category: "PIJAMAS",
+                name: "PIJAMA DE MORLEY RATTIER",
+                description: "Pijama de morley rattier con breteles y short con rulotte.",
+                price: 28990,
+                sizes: ["S", "M", "L", "XL", "XXL"],
+                colors: ["Celeste", "Negro", "Malbec"],
+                brand: "PIJAMAS",
+                image: "imagenes/PIJAMAS/morleyceleste.png",
+                imagesByColor: {
+                    "Celeste": "imagenes/PIJAMAS/morleyceleste.png",
+                    "Negro": "imagenes/PIJAMAS/morleynegro.png",
+                    "Malbec": "imagenes/PIJAMAS/morleymalbec.png"
+                },
+                colorSwatches: {
+                    "Celeste": "#8EC9DC",
+                    "Negro": "#090909",
+                    "Malbec": "#6D2037"
+                },
+                images: [
+                    "imagenes/PIJAMAS/morleyceleste.png",
+                    "imagenes/PIJAMAS/morleynegro.png",
+                    "imagenes/PIJAMAS/morleymalbec.png",
+                    "imagenes/PIJAMAS/morleytela.png"
+                ],
+                isFeatured: true
+            },
+            {
+                id: "pijama-morley-rattier-2",
+                category: "PIJAMAS",
+                name: "PIJAMA DE MORLEY RATTIER",
+                description: "Pijama de morley rattier con breteles y short con rulotte.",
+                price: 28990,
+                sizes: ["S", "M", "L", "XL", "XXL"],
+                colors: ["Crudo", "Chocolate", "Negro"],
+                brand: "PIJAMAS",
+                image: "imagenes/PIJAMAS/morley2crudo.png",
+                imagesByColor: {
+                    "Crudo": "imagenes/PIJAMAS/morley2crudo.png",
+                    "Chocolate": "imagenes/PIJAMAS/morley2chocolate.png",
+                    "Negro": "imagenes/PIJAMAS/morley2ngro.png"
+                },
+                colorSwatches: {
+                    "Crudo": "#E9E2D4",
+                    "Chocolate": "#5A3528",
+                    "Negro": "#090909"
+                },
+                images: [
+                    "imagenes/PIJAMAS/morley2crudo.png",
+                    "imagenes/PIJAMAS/morley2chocolate.png",
+                    "imagenes/PIJAMAS/morley2ngro.png",
+                    "imagenes/PIJAMAS/morley2telas.png"
+                ],
+                isFeatured: true
+            },
+
+        ];
+
+        function App() {
+            const [selectedCategory, setSelectedCategory] = useState("TODOS");
+            const [searchQuery, setSearchQuery] = useState("");
+            const [cart, setCart] = useState([]);
+            const [showCart, setShowCart] = useState(false);
+            const [showMenu, setShowMenu] = useState(false);
+            const [selectedSizes, setSelectedSizes] = useState({});
+            const [selectedColors, setSelectedColors] = useState({});
+            const [selectedImageIndices, setSelectedImageIndices] = useState({});
+            const [shippingType, setShippingType] = useState("retiro");
+            const [customerNotes, setCustomerNotes] = useState("");
+            const [activeSlide, setActiveSlide] = useState(0);
+            const imageTouchStarts = useRef({});
+
+            // Setup default selected size & color per product
+            useEffect(() => {
+                const initSizes = {};
+                const initColors = {};
+                PRODUCTS.forEach(p => {
+                    initSizes[p.id] = p.sizes[0];
+                    initColors[p.id] = p.colors[0];
+                });
+                setSelectedSizes(initSizes);
+                setSelectedColors(initColors);
+            }, []);
+
+            useEffect(() => {
+                const carouselInterval = setInterval(() => {
+                    setActiveSlide(currentSlide => (currentSlide + 1) % HERO_SLIDES.length);
+                }, 2000);
+
+                return () => clearInterval(carouselInterval);
+            }, []);
+
+            // Costos de envío personalizables
+            const shippingCosts = {
+                retiro: 0,
+                caba: 4500,
+                gba: 6500,
+                correo: 7500
+            };
+
+            const handleSizeChange = (productId, size) => {
+                setSelectedSizes(prev => ({ ...prev, [productId]: size }));
+            };
+
+            const handleColorChange = (productId, color) => {
+                setSelectedColors(prev => ({ ...prev, [productId]: color }));
+
+                const product = PRODUCTS.find(item => item.id === productId);
+                const colorImage = product?.imagesByColor?.[color];
+                const imageIndex = product ? getProductImages(product).indexOf(colorImage) : -1;
+
+                if (imageIndex >= 0) {
+                    setSelectedImageIndices(prev => ({ ...prev, [productId]: imageIndex }));
+                }
+            };
+
+            const handleImageTouchStart = (productId, event) => {
+                imageTouchStarts.current[productId] = event.touches[0].clientX;
+            };
+
+            const handleImageTouchEnd = (product, event) => {
+                const startX = imageTouchStarts.current[product.id];
+                const endX = event.changedTouches[0].clientX;
+                const swipeDistance = endX - startX;
+
+                delete imageTouchStarts.current[product.id];
+
+                const images = getProductImages(product);
+
+                if (startX === undefined || images.length < 2 || Math.abs(swipeDistance) < 40) {
+                    return;
+                }
+
+                setSelectedImageIndices(prev => {
+                    const currentIndex = prev[product.id] || 0;
+                    const nextIndex = swipeDistance < 0
+                        ? (currentIndex + 1) % images.length
+                        : (currentIndex - 1 + images.length) % images.length;
+                    return { ...prev, [product.id]: nextIndex };
+                });
+            };
+
+            const addToCart = (product) => {
+                const size = selectedSizes[product.id] || product.sizes[0];
+                const color = selectedColors[product.id] || product.colors[0];
+                const cartItemId = `${product.id}-${size}-${color}`;
+
+                const cartItem = {
+                    ...product,
+                    cartItemId,
+                    selectedSize: size,
+                    selectedColor: color,
+                    quantity: 1
+                };
+
+                setCart(prev => {
+                    const existingIndex = prev.findIndex(item => item.cartItemId === cartItemId);
+                    if (existingIndex > -1) {
+                        const updated = [...prev];
+                        updated[existingIndex].quantity += 1;
+                        return updated;
+                    }
+                    return [...prev, cartItem];
+                });
+            };
+
+            const updateCartQuantity = (cartItemId, delta) => {
+                setCart(prev => prev.map(item => {
+                    if (item.cartItemId === cartItemId) {
+                        const newQty = Math.max(1, item.quantity + delta);
+                        return { ...item, quantity: newQty };
+                    }
+                    return item;
+                }).filter(item => item.quantity > 0));
+            };
+
+            const removeFromCart = (cartItemId) => {
+                setCart(prev => prev.filter(item => item.cartItemId !== cartItemId));
+            };
+
+            const clearCart = () => {
+                if (window.confirm("¿Querés vaciar el carrito? Esta acción no se puede deshacer.")) {
+                    setCart([]);
+                    setCustomerNotes("");
+                    setShippingType("retiro");
+                }
+            };
+
+            // Filters
+            const filteredProducts = useMemo(() => {
+                return PRODUCTS.filter(p => {
+                    const matchesCategory = selectedCategory === "TODOS" || p.category === selectedCategory;
+                    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        p.description.toLowerCase().includes(searchQuery.toLowerCase());
+                    return matchesCategory && matchesSearch;
+                });
+            }, [selectedCategory, searchQuery]);
+
+            const subtotal = useMemo(() => {
+                return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            }, [cart]);
+
+            const shippingPrice = shippingCosts[shippingType] || 0;
+            const total = subtotal + shippingPrice;
+
+            // Enviar Pedido formateado a WhatsApp
+            const handleCheckoutWhatsApp = () => {
+                let message = `🌸 *NUEVO PEDIDO - ROSÉ LENCERÍA* 🌸\n\n`;
+                message += `*Detalle de la compra:*\n`;
+
+                cart.forEach((item, idx) => {
+                    message += `${idx + 1}. *${item.name}*\n`;
+                    message += `   └ Talle: *${item.selectedSize}* | Color: *${item.selectedColor}*\n`;
+                    message += `   └ Cantidad: ${item.quantity} x $${item.price.toLocaleString('es-AR')} = *$${(item.price * item.quantity).toLocaleString('es-AR')}*\n\n`;
+                });
+
+                message += `-----------------------------------\n`;
+                message += `*Subtotal:* $${subtotal.toLocaleString('es-AR')}\n`;
+
+                const shippingLabel = {
+                    retiro: "Retiro en Showroom / Local (Sin Cargo)",
+                    caba: "Envío Mensajería CABA ($" + shippingCosts.caba.toLocaleString('es-AR') + ")",
+                    gba: "Envío Mensajería GBA ($" + shippingCosts.gba.toLocaleString('es-AR') + ")",
+                    correo: "Envío Correo Argentino ($" + shippingCosts.correo.toLocaleString('es-AR') + ")"
+                }[shippingType];
+
+                message += `*Opción de Entrega:* ${shippingLabel}\n`;
+                if (customerNotes.trim()) {
+                    message += `*Aclaraciones:* ${customerNotes.trim()}\n`;
+                }
+                message += `-----------------------------------\n`;
+                message += `💰 *TOTAL A PAGAR: $${total.toLocaleString('es-AR')}*\n\n`;
+                message += `¡Hola! Quisiera coordinar el pago y la entrega de este pedido. 💕`;
+
+                const encodedMessage = encodeURIComponent(message);
+                window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodedMessage}`, '_blank');
+            };
+
+            return (
+                <div className="min-h-screen pb-28">
+                    {/* Main Header */}
+                    <header className="sticky top-0 z-30 border-b border-white/10 bg-[#292929] shadow-sm">
+                        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-2 sm:px-8">
+                            <button
+                                onClick={() => setShowMenu(true)}
+                                className="p-2 text-roseDark transition-colors hover:text-roseMagenta active:scale-95"
+                                aria-label="Abrir Menú"
+                            >
+                                <Icons.Menu />
+                            </button>
+
+                            <Icons.LogoRose dark compact />
+
+                            <button
+                                onClick={() => setShowCart(true)}
+                                className="relative p-2 text-roseDark transition-colors hover:text-roseMagenta active:scale-95"
+                                aria-label="Ver Carrito"
+                            >
+                                <Icons.Cart />
+                                {cart.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-roseMagenta text-white text-[10px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+                                        {cart.reduce((a, b) => a + b.quantity, 0)}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Category Navigation Tabs */}
+                        <div className="mx-auto flex max-w-6xl justify-center gap-5 overflow-x-auto px-5 sm:gap-9 sm:px-8">
+                            {CATEGORIES.map(cat => (
+                                <button
+                                    key={cat}
+                                    onClick={() => {
+                                        setSelectedCategory(cat);
+                                        document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    className={`border-b-2 px-1 pb-3 pt-1 text-[10px] font-brand font-bold tracking-[0.15em] whitespace-nowrap transition-colors sm:text-[11px] ${selectedCategory === cat
+                                        ? 'border-roseMagenta text-roseMagenta'
+                                        : 'border-transparent text-white/75 hover:border-white/40 hover:text-white'
+                                        }`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+                    </header>
+
+                    {/* Hero Carousel */}
+                    <section className="relative w-full overflow-hidden border-b border-roseAccent/60 bg-[#151315]">
+                        <div
+                            className="flex transition-transform duration-700 ease-in-out"
+                            style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+                        >
+                            {HERO_SLIDES.map((slide, index) => (
+                                <article key={slide.title} className="relative h-[260px] w-full shrink-0 sm:h-[360px] lg:h-[480px]">
+                                    <img
+                                        src={slide.image}
+                                        alt={slide.title}
+                                        className="h-full w-full object-cover object-center"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-transparent" />
+                                    <div className="absolute inset-0 mx-auto flex max-w-6xl items-center px-6 sm:px-12">
+                                        <div className="max-w-sm">
+                                            <p className="font-brand text-[10px] font-bold tracking-[0.28em] text-roseMagenta uppercase">ROSÉ Lencería</p>
+                                            <h1 className="mt-2 font-display text-4xl font-semibold leading-tight text-white sm:text-6xl">{slide.title}</h1>
+                                            <p className="mt-3 text-sm text-white/85 sm:text-base">{slide.subtitle}</p>
+                                            <button
+                                                onClick={() => setSelectedCategory(slide.category)}
+                                                className="mt-5 rounded-full bg-roseMagenta px-5 py-2.5 font-brand text-[11px] font-bold tracking-wider text-white uppercase transition-colors hover:bg-white hover:text-[#151315]"
+                                            >
+                                                Ver colección
+                                            </button>
+                                        </div>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
+                            {HERO_SLIDES.map((slide, index) => (
+                                <button
+                                    key={slide.title}
+                                    onClick={() => setActiveSlide(index)}
+                                    aria-label={`Ver imagen ${index + 1}`}
+                                    className={`h-2 rounded-full transition-all ${activeSlide === index ? 'w-6 bg-roseMagenta' : 'w-2 bg-white/70'}`}
+                                />
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Category Showcase */}
+                    <section className="border-b border-roseAccent/60 bg-[#f5eded] px-4 py-10 sm:px-6 sm:py-14">
+                        <div className="mx-auto max-w-6xl">
+                            <div className="mb-6 text-center">
+                                <p className="font-brand text-[10px] font-bold tracking-[0.28em] text-roseMagenta uppercase">Elegí tu estilo</p>
+                                <h2 className="mt-2 font-brand text-2xl font-black tracking-wide text-[#1A1A1A] uppercase sm:text-3xl">Explorá por categoría</h2>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+                                {CATEGORIES.map(category => {
+                                    const categoryProduct = PRODUCTS.find(product => product.category === category);
+                                    return (
+                                        <button
+                                            key={category}
+                                            onClick={() => {
+                                                setSelectedCategory(category);
+                                                document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
+                                            }}
+                                            className="group relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/10 bg-[#292529] text-left shadow-lg"
+                                        >
+                                            <img
+                                                src={CATEGORY_IMAGES[category] || categoryProduct.image}
+                                                alt={`Colección ${category}`}
+                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                loading="lazy"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                                            <div className="absolute inset-x-0 bottom-0 p-4">
+                                                <h3 className="font-brand text-lg font-black tracking-wide text-white uppercase sm:text-xl">{category}</h3>
+                                                <span className="mt-2 inline-flex rounded-full bg-white px-3 py-1.5 font-brand text-[10px] font-bold tracking-wider text-[#1C191C] uppercase transition-colors group-hover:bg-roseMagenta group-hover:text-white">
+                                                    Ver todo
+                                                </span>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Main Content Area */}
+                    <main id="catalogo" className="mx-auto max-w-6xl px-4 pt-8 space-y-6 sm:px-6">
+
+                        {/* Dynamic Category Title Banner */}
+                        <div className="flex justify-between items-center border-b border-roseAccent pb-2">
+                            <h2 className="font-brand font-bold tracking-widest text-sm text-roseDark uppercase flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-roseMagenta"></span>
+                                {selectedCategory === "TODOS" ? "Colección Completa" : `Categoría: ${selectedCategory}`}
+                            </h2>
+                            <span className="text-[11px] font-medium text-gray-500">
+                                {filteredProducts.length} {filteredProducts.length === 1 ? 'modelo' : 'modelos'}
+                            </span>
+                        </div>
+
+                        {filteredProducts.length === 0 ? (
+                            <div className="text-center py-12 bg-white rounded-2xl p-6 border border-roseAccent">
+                                <p className="text-roseDark font-brand font-semibold text-sm">No encontramos productos en esta búsqueda</p>
+                                <p className="text-xs text-gray-500 mt-1">Probá cambiando el filtro o la palabra clave.</p>
+                                <button
+                                    onClick={() => { setSelectedCategory("TODOS"); setSearchQuery(""); }}
+                                    className="mt-4 px-5 py-2 bg-roseMagenta text-white rounded-full text-xs font-bold font-brand tracking-wider uppercase"
+                                >
+                                    Ver Todo el Catálogo
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                                {filteredProducts.map(product => {
+                                    const currentColor = selectedColors[product.id] || product.colors[0];
+                                    const currentSize = selectedSizes[product.id] || product.sizes[0];
+                                    const selectedImageIndex = selectedImageIndices[product.id] || 0;
+                                    const productImages = getProductImages(product);
+
+                                    return (
+                                        <div
+                                            key={product.id}
+                                            className="overflow-hidden border border-white/10 bg-[#201D20] shadow-sm transition-shadow hover:shadow-xl"
+                                        >
+                                            <div
+                                                className="relative aspect-[4/5] overflow-hidden group touch-pan-y"
+                                                onTouchStart={(event) => handleImageTouchStart(product.id, event)}
+                                                onTouchEnd={(event) => handleImageTouchEnd(product, event)}
+                                            >
+                                                <img
+                                                    src={getProductImage(product, currentColor, selectedImageIndex)}
+                                                    alt={product.name}
+                                                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                                                    loading="lazy"
+                                                />
+                                                {product.unavailableImageColors?.includes(currentColor) && (
+                                                    <span className="absolute right-3 top-3 rounded-full bg-black/65 px-3 py-1.5 text-[10px] font-bold tracking-wide text-white uppercase backdrop-blur-sm">
+                                                        Imagen próximamente
+                                                    </span>
+                                                )}
+                                                {productImages.length > 1 && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => setSelectedImageIndices(prev => ({ ...prev, [product.id]: (selectedImageIndex - 1 + productImages.length) % productImages.length }))}
+                                                            aria-label={`Ver imagen anterior de ${product.name}`}
+                                                            className="absolute left-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-lg text-white backdrop-blur-sm transition-colors hover:bg-black/65"
+                                                        >
+                                                            ‹
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setSelectedImageIndices(prev => ({ ...prev, [product.id]: (selectedImageIndex + 1) % productImages.length }))}
+                                                            aria-label={`Ver imagen siguiente de ${product.name}`}
+                                                            className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-lg text-white backdrop-blur-sm transition-colors hover:bg-black/65"
+                                                        >
+                                                            ›
+                                                        </button>
+                                                        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/35 px-2 py-1.5 backdrop-blur-sm" aria-label="Vistas del producto">
+                                                            {productImages.map((image, imageIndex) => (
+                                                                <button
+                                                                    key={image}
+                                                                    onClick={() => setSelectedImageIndices(prev => ({ ...prev, [product.id]: imageIndex }))}
+                                                                    aria-label={`Ver imagen ${imageIndex + 1} de ${product.name}`}
+                                                                    aria-pressed={selectedImageIndex === imageIndex}
+                                                                    className={`h-2 w-2 rounded-full transition-transform ${selectedImageIndex === imageIndex ? 'scale-125 bg-white' : 'bg-white/60 hover:bg-white'}`}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-1 flex-col items-start p-5">
+                                                <div className="flex w-full items-center justify-between gap-3 border-b border-white/10 pb-4">
+                                                    <div className="flex items-center gap-2" aria-label="Opciones de color">
+                                                        {product.colors.map(color => {
+                                                            const isSelected = currentColor === color;
+                                                            return (
+                                                                <button
+                                                                    key={color}
+                                                                    onClick={() => handleColorChange(product.id, color)}
+                                                                    aria-label={`Color ${color}`}
+                                                                    aria-pressed={isSelected}
+                                                                    title={color}
+                                                                    className={`h-5 w-5 rounded-full border transition-transform ${isSelected ? 'scale-110 border-white ring-2 ring-roseMagenta ring-offset-2 ring-offset-[#201D20]' : 'border-white/30 hover:scale-110'}`}
+                                                                    style={getSwatchStyle(product, color)}
+                                                                />
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    <span className="font-brand text-[10px] font-bold tracking-wider text-roseDark uppercase">{product.brand || "ANDRESSA"}</span>
+                                                </div>
+                                                <h3 className="mt-4 font-sans text-[15px] font-medium leading-snug text-roseDark">
+                                                    {product.name}
+                                                </h3>
+                                                <div className="mt-4">
+                                                    <span className="font-brand text-[10px] font-bold tracking-[0.14em] text-gray-400 uppercase">Talle</span>
+                                                    <div className="mt-2 flex flex-wrap gap-1.5">
+                                                        {product.sizes.map(size => (
+                                                            <button
+                                                                key={size}
+                                                                onClick={() => handleSizeChange(product.id, size)}
+                                                                aria-pressed={currentSize === size}
+                                                                className={`min-w-8 rounded-full border px-2 py-1 text-[10px] font-bold transition-colors ${currentSize === size
+                                                                    ? 'border-roseMagenta bg-roseMagenta text-white'
+                                                                    : 'border-white/20 text-roseDark hover:border-roseMagenta'
+                                                                    }`}
+                                                            >
+                                                                {size}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <span className="mt-3 font-sans text-xl font-semibold text-white">
+                                                    ${product.price.toLocaleString('es-AR')}
+                                                </span>
+                                                <button
+                                                    onClick={() => addToCart(product)}
+                                                    className="mt-5 rounded-full bg-[#101010] px-7 py-2.5 font-sans text-xs font-semibold text-white transition-colors hover:bg-roseMagenta"
+                                                >
+                                                    Comprar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </main>
+
+                    { }
+                    {showMenu && (
+                        <div className="fixed inset-0 z-50 flex justify-start">
+                            {/* Backdrop */}
+                            <div
+                                className="absolute inset-0 bg-roseDark/60 backdrop-blur-sm transition-opacity"
+                                onClick={() => setShowMenu(false)}
+                            />
+
+                            {/* Left Drawer Panel */}
+                            <div className="relative w-full max-w-xs bg-white h-full shadow-2xl flex flex-col animate-slide-in-left z-10">
+                                {/* Drawer Header */}
+                                <div className="p-4 border-b border-roseAccent flex items-center justify-between bg-[#292929]">
+                                    <div className="relative h-14 w-14 overflow-hidden" aria-label="ROSÉ Lencería">
+                                        <img
+                                            src="assets/logo-rose-icon.png"
+                                            alt="Ícono ROSÉ Lencería"
+                                            className="absolute left-1/2 top-[-22px] w-[92px] max-w-none -translate-x-1/2"
+                                        />
+                                    </div>
+                                    <button
+                                        onClick={() => setShowMenu(false)}
+                                        className="p-2 rounded-full hover:bg-roseBlush text-roseDark transition-colors"
+                                    >
+                                        <Icons.X />
+                                    </button>
+                                </div>
+
+                                <div className="flex-1 p-4">
+                                    <div className="space-y-1">
+                                        {CATEGORIES.map(cat => (
+                                            <button
+                                                key={cat}
+                                                onClick={() => {
+                                                    setSelectedCategory(cat);
+                                                    setSearchQuery("");
+                                                    setShowMenu(false);
+                                                }}
+                                                className={`w-full rounded-xl p-3 text-left text-xs font-brand font-bold tracking-wide transition-all ${selectedCategory === cat
+                                                    ? 'bg-roseMagenta text-white shadow-sm'
+                                                    : 'text-roseDark hover:bg-roseBlush'
+                                                    }`}
+                                            >
+                                                {cat}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {showCart && (
+                        <div className="fixed inset-0 z-50 flex justify-end">
+                            {/* Backdrop */}
+                            <div
+                                className="absolute inset-0 bg-roseDark/60 backdrop-blur-sm transition-opacity"
+                                onClick={() => setShowCart(false)}
+                            />
+
+                            {/* Cart Sidebar Panel */}
+                            <div className="relative h-full w-full max-w-md bg-white shadow-2xl flex flex-col animate-slide-in sm:max-w-lg">
+                                {/* Drawer Header */}
+                                <div className="p-4 border-b border-roseAccent flex items-center justify-between bg-roseSoftBg">
+                                    <div className="flex items-center gap-2">
+                                        <Icons.Bag />
+                                        <h3 className="font-brand font-bold text-sm tracking-widest uppercase text-roseDark">Tu Carrito de Compras</h3>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowCart(false)}
+                                        className="p-2 rounded-full hover:bg-roseBlush text-roseDark transition-colors"
+                                    >
+                                        <Icons.X />
+                                    </button>
+                                </div>
+
+                                {/* Cart Items List */}
+                                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll">
+                                    {cart.length === 0 ? (
+                                        <div className="h-full flex flex-col items-center justify-center text-center p-6 text-gray-400">
+                                            <div className="w-16 h-16 rounded-full bg-roseBlush flex items-center justify-center text-roseMagenta mb-3">
+                                                <Icons.Bag />
+                                            </div>
+                                            <p className="font-brand font-bold text-sm text-roseDark uppercase">El carrito está vacío</p>
+                                            <p className="text-xs text-gray-500 mt-1">Elegí tus prendas preferidas para agregarlas aquí.</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {cart.map(item => (
+                                                <div
+                                                    key={item.cartItemId}
+                                                    className="flex gap-3 bg-roseSoftBg p-3 rounded-2xl border border-roseAccent/60 relative group"
+                                                >
+                                                    <img
+                                                        src={item.image}
+                                                        alt={item.name}
+                                                        className="w-16 h-20 object-cover rounded-xl shrink-0"
+                                                    />
+                                                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                                                        <div>
+                                                            <div className="flex justify-between items-start pr-5">
+                                                                <h4 className="font-brand font-bold text-xs uppercase tracking-tight text-roseDark truncate">{item.name}</h4>
+                                                            </div>
+                                                            <div className="flex gap-2 mt-1">
+                                                                <span className="text-[10px] font-bold bg-white text-roseMagenta px-2 py-0.5 rounded border border-roseAccent">
+                                                                    Talle: {item.selectedSize}
+                                                                </span>
+                                                                <span className="text-[10px] font-semibold bg-white text-gray-600 px-2 py-0.5 rounded border border-gray-200 truncate">
+                                                                    {item.selectedColor}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex items-center justify-between mt-2">
+                                                            <div className="flex items-center gap-2 bg-white rounded-lg border border-roseAccent px-2 py-0.5 shadow-sm">
+                                                                <button
+                                                                    onClick={() => updateCartQuantity(item.cartItemId, -1)}
+                                                                    className="text-roseDark p-1 hover:text-roseMagenta"
+                                                                >
+                                                                    <Icons.Minus />
+                                                                </button>
+                                                                <span className="text-xs font-bold text-roseDark w-4 text-center">{item.quantity}</span>
+                                                                <button
+                                                                    onClick={() => updateCartQuantity(item.cartItemId, 1)}
+                                                                    className="text-roseDark p-1 hover:text-roseMagenta"
+                                                                >
+                                                                    <Icons.Plus />
+                                                                </button>
+                                                            </div>
+
+                                                            <span className="font-brand font-bold text-sm text-roseMagenta">
+                                                                ${(item.price * item.quantity).toLocaleString('es-AR')}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <button
+                                                        onClick={() => removeFromCart(item.cartItemId)}
+                                                        className="absolute top-2 right-2 text-gray-400 hover:text-roseMagenta p-1"
+                                                    >
+                                                        <Icons.X />
+                                                    </button>
+                                                </div>
+                                            ))}
+
+                                            {/* Shipping Options */}
+                                            <div className="pt-4 space-y-2 border-t border-roseAccent">
+                                                <label className="block text-[11px] font-brand font-bold uppercase tracking-wider text-roseDark flex items-center gap-1.5">
+                                                    <Icons.Truck /> Forma de Entrega:
+                                                </label>
+                                                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                                    {[
+                                                        { key: 'retiro', title: 'Retiro en Showroom / Local', cost: 'GRATIS' },
+                                                        { key: 'caba', title: 'Envío Mensajería CABA', cost: `$${shippingCosts.caba.toLocaleString('es-AR')}` },
+                                                        { key: 'gba', title: 'Envío Mensajería GBA', cost: `$${shippingCosts.gba.toLocaleString('es-AR')}` },
+                                                        { key: 'correo', title: 'Envío Correo Argentino', cost: `$${shippingCosts.correo.toLocaleString('es-AR')}` }
+                                                    ].map(option => (
+                                                        <button
+                                                            key={option.key}
+                                                            onClick={() => setShippingType(option.key)}
+                                                            className={`flex items-center justify-between p-3 rounded-xl border text-xs font-medium transition-all ${shippingType === option.key
+                                                                ? 'bg-roseBlush border-roseMagenta text-roseDark font-bold'
+                                                                : 'bg-white border-gray-200 text-gray-600'
+                                                                }`}
+                                                        >
+                                                            <span>{option.title}</span>
+                                                            <span className="font-bold text-roseMagenta">{option.cost}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Customer Order Notes */}
+                                            <div className="pt-2">
+                                                <label className="block text-[11px] font-brand font-bold uppercase tracking-wider text-roseDark mb-1">
+                                                    Aclaraciones o Nota para el pedido (Opcional):
+                                                </label>
+                                                <textarea
+                                                    rows="2"
+                                                    placeholder="Ej: Prefiero retirar por la tarde / Empacar para regalo..."
+                                                    value={customerNotes}
+                                                    onChange={(e) => setCustomerNotes(e.target.value)}
+                                                    className="w-full text-xs p-2.5 rounded-xl border border-roseAccent bg-roseSoftBg focus:outline-none focus:ring-1 focus:ring-roseMagenta"
+                                                ></textarea>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Cart Footer Summary & WhatsApp Submit Button */}
+                                {cart.length > 0 && (
+                                    <div className="p-4 bg-white border-t border-roseAccent space-y-3 shadow-lg">
+                                        <div className="space-y-1.5 text-xs text-gray-600">
+                                            <div className="flex justify-between">
+                                                <span>Subtotal Productos</span>
+                                                <span className="font-semibold text-roseDark">${subtotal.toLocaleString('es-AR')}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Costo de Envío</span>
+                                                <span className="font-semibold text-roseDark">
+                                                    {shippingPrice === 0 ? 'GRATIS' : `$${shippingPrice.toLocaleString('es-AR')}`}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between text-base font-brand font-bold text-roseDark pt-2 border-t border-gray-100">
+                                                <span>TOTAL ESTIMADO</span>
+                                                <span className="text-roseMagenta">${total.toLocaleString('es-AR')}</span>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={handleCheckoutWhatsApp}
+                                            className="w-full py-3.5 rounded-2xl bg-roseMagenta hover:bg-roseDark text-white font-brand font-bold text-xs tracking-widest uppercase flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-all"
+                                        >
+                                            <Icons.WhatsApp />
+                                            ENVIAR PEDIDO POR WHATSAPP
+                                        </button>
+                                        <button
+                                            onClick={clearCart}
+                                            className="w-full py-2 rounded-xl border border-roseMagenta/60 text-roseMagenta hover:bg-roseMagenta hover:text-white font-brand font-bold text-[10px] tracking-widest uppercase transition-all"
+                                        >
+                                            Vaciar carrito
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Floating Sticky Bottom Cart Button (Mobile Quick Access) */}
+                    {cart.length > 0 && !showCart && (
+                        <div className="fixed bottom-4 left-4 right-4 z-20 mx-auto max-w-md sm:max-w-xl">
+                            <button
+                                onClick={() => setShowCart(true)}
+                                className="w-full bg-roseDark text-white p-4 rounded-2xl flex items-center justify-between shadow-2xl hover:bg-roseMagenta active:scale-98 transition-all border border-roseAccent"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="relative">
+                                        <Icons.Bag />
+                                        <span className="absolute -top-2 -right-2 bg-roseMagenta text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">
+                                            {cart.reduce((a, b) => a + b.quantity, 0)}
+                                        </span>
+                                    </div>
+                                    <span className="font-brand font-bold text-xs tracking-wider uppercase">Ver Carrito</span>
+                                </div>
+                                <div className="font-brand font-extrabold text-sm text-roseAccent">
+                                    ${total.toLocaleString('es-AR')}
+                                </div>
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Footer */}
+                    <footer className="mt-16 bg-[#292929] px-5 py-10 text-center text-white">
+                        <Icons.LogoRose dark />
+                        <p className="mt-3 font-brand text-xs font-medium tracking-[0.18em] text-white/90">
+                            Lencería pensada para vos
+                        </p>
+                        <div className="mt-5 flex items-center justify-center gap-3">
+                            <a
+                                href={`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent("¡Hola! Quisiera hacer una consulta.")}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Contactarnos por WhatsApp"
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 text-white transition-colors hover:border-roseMagenta hover:bg-roseMagenta"
+                            >
+                                <Icons.WhatsApp />
+                            </a>
+                            <a
+                                href="https://www.instagram.com/lenceria.rose_?igsh=aWw3NTRsdGprd3ph&igsi=aWw3NTRsdGprd3ph"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Seguinos en Instagram"
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 text-white transition-colors hover:border-roseMagenta hover:bg-roseMagenta"
+                            >
+                                <Icons.Instagram />
+                            </a>
+                        </div>
+                        <p className="mt-6 text-[9px] text-white/50">
+                            © 2026 ROSÉ LENCERÍA. Todos los derechos reservados.
+                        </p>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
