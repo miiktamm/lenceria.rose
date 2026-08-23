@@ -1880,33 +1880,33 @@
                             </div>
                             <div className="relative">
                                 <div ref={categoryCarouselRef} className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 pr-10 sm:gap-4 lg:grid lg:grid-cols-5 lg:overflow-visible lg:pr-0">
-                                {CATEGORIES.map(category => {
-                                    const categoryProduct = PRODUCTS.find(product => product.category === category);
-                                    return (
-                                        <button
-                                            key={category}
-                                            onClick={() => {
-                                                setSelectedCategory(category);
-                                                document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
-                                            }}
-                                            className="group relative aspect-[3/4] w-[44%] shrink-0 snap-start overflow-hidden bg-[#292529] text-left shadow-lg sm:w-[30%] lg:w-auto"
-                                        >
-                                            <img
-                                                src={CATEGORY_IMAGES[category] || categoryProduct.image}
-                                                alt={`Colección ${category}`}
-                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                loading="lazy"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                                            <div className="absolute inset-x-0 bottom-0 p-4">
-                                                <h3 className="font-brand text-lg font-black tracking-wide text-white uppercase sm:text-xl">{category}</h3>
-                                                <span className="mt-2 inline-flex bg-roseMagenta px-3 py-1.5 font-brand text-[10px] font-bold tracking-wider text-white uppercase transition-colors group-hover:bg-white group-hover:text-[#1C191C]">
-                                                    Ver todo
-                                                </span>
-                                            </div>
-                                        </button>
-                                    );
-                                })}
+                                    {CATEGORIES.map(category => {
+                                        const categoryProduct = PRODUCTS.find(product => product.category === category);
+                                        return (
+                                            <button
+                                                key={category}
+                                                onClick={() => {
+                                                    setSelectedCategory(category);
+                                                    document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
+                                                }}
+                                                className="group relative aspect-[3/4] w-[44%] shrink-0 snap-start overflow-hidden bg-[#292529] text-left shadow-lg sm:w-[30%] lg:w-auto"
+                                            >
+                                                <img
+                                                    src={CATEGORY_IMAGES[category] || categoryProduct.image}
+                                                    alt={`Colección ${category}`}
+                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                    loading="lazy"
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                                                <div className="absolute inset-x-0 bottom-0 p-4">
+                                                    <h3 className="font-brand text-lg font-black tracking-wide text-white uppercase sm:text-xl">{category}</h3>
+                                                    <span className="mt-2 inline-flex bg-roseMagenta px-3 py-1.5 font-brand text-[10px] font-bold tracking-wider text-white uppercase transition-colors group-hover:bg-white group-hover:text-[#1C191C]">
+                                                        Ver todo
+                                                    </span>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                                 <button
                                     onClick={scrollCategoryCards}
