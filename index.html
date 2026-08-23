@@ -1433,6 +1433,7 @@
             },
 
         ];
+        const BEST_SELLER_IDS = [209, 3010, 2012, "pijama-viscosa", 68];
 
         function App() {
             const [selectedCategory, setSelectedCategory] = useState("TODOS");
@@ -1446,7 +1447,9 @@
             const [shippingType, setShippingType] = useState("retiro");
             const [customerNotes, setCustomerNotes] = useState("");
             const [activeSlide, setActiveSlide] = useState(0);
+            const [bestSellerIndex, setBestSellerIndex] = useState(0);
             const imageTouchStarts = useRef({});
+            const bestSellersCarouselRef = useRef(null);
 
             // Setup default selected size & color per product
             useEffect(() => {
@@ -1467,6 +1470,24 @@
 
                 return () => clearInterval(carouselInterval);
             }, []);
+
+            useEffect(() => {
+                const bestSellersInterval = setInterval(() => {
+                    setBestSellerIndex(currentIndex => (currentIndex + 1) % BEST_SELLER_IDS.length);
+                }, 3500);
+
+                return () => clearInterval(bestSellersInterval);
+            }, []);
+
+            useEffect(() => {
+                const carousel = bestSellersCarouselRef.current;
+                if (!carousel) return;
+
+                carousel.scrollTo({
+                    left: bestSellerIndex * (carousel.clientWidth / 2),
+                    behavior: "smooth"
+                });
+            }, [bestSellerIndex]);
 
             // Costos de envío personalizables
             const shippingCosts = {
@@ -1573,6 +1594,10 @@
                     return matchesCategory && matchesSearch;
                 });
             }, [selectedCategory, searchQuery]);
+
+            const bestSellers = BEST_SELLER_IDS
+                .map(id => PRODUCTS.find(product => product.id === id))
+                .filter(Boolean);
 
             const subtotal = useMemo(() => {
                 return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -1740,6 +1765,57 @@
                                         </button>
                                     );
                                 })}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Best Sellers Carousel */}
+                    <section className="overflow-hidden bg-[#201D20] px-4 py-10 sm:px-6 sm:py-14">
+                        <div className="mx-auto max-w-6xl">
+                            <div className="mb-6 flex items-end justify-between gap-4">
+                                <div>
+                                    <p className="font-brand text-[10px] font-bold tracking-[0.28em] text-roseMagenta uppercase">Favoritos de Rosé</p>
+                                    <h2 className="mt-2 font-brand text-2xl font-black tracking-wide text-white uppercase sm:text-3xl">Los más vendidos</h2>
+                                </div>
+                                <span className="hidden font-brand text-[10px] font-bold tracking-wider text-white/60 uppercase sm:block">Elegidos por ustedes</span>
+                            </div>
+
+                            <div ref={bestSellersCarouselRef} className="flex gap-4 overflow-x-hidden scroll-smooth" aria-label="Carrusel de productos más vendidos">
+                                {bestSellers.map(product => (
+                                    <button
+                                        key={product.id}
+                                        onClick={() => {
+                                            setSelectedCategory(product.category);
+                                            document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
+                                        }}
+                                        className="group w-[48%] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#292529] text-left shadow-lg sm:w-[31%] lg:w-[19%]"
+                                    >
+                                        <div className="aspect-[4/5] overflow-hidden bg-[#171417]">
+                                            <img
+                                                src={getProductImage(product, product.colors[0])}
+                                                alt={product.name}
+                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                loading="lazy"
+                                            />
+                                        </div>
+                                        <div className="p-3 sm:p-4">
+                                            <p className="line-clamp-2 min-h-9 font-brand text-[11px] font-bold leading-snug tracking-wide text-white uppercase">{product.name}</p>
+                                            <p className="mt-2 font-brand text-sm font-black text-roseAccent">${product.price.toLocaleString('es-AR')}</p>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="mt-5 flex justify-center gap-2">
+                                {bestSellers.map((product, index) => (
+                                    <button
+                                        key={product.id}
+                                        onClick={() => setBestSellerIndex(index)}
+                                        aria-label={`Ver producto destacado ${index + 1}`}
+                                        aria-pressed={bestSellerIndex === index}
+                                        className={`h-2 rounded-full transition-all ${bestSellerIndex === index ? 'w-6 bg-roseMagenta' : 'w-2 bg-white/40 hover:bg-white/75'}`}
+                                    />
+                                ))}
                             </div>
                         </div>
                     </section>
@@ -2137,6 +2213,16 @@
                             </button>
                         </div>
                     )}
+
+                    <a
+                        href="https://www.instagram.com/lenceria.rose_?igsh=aWw3NTRsdGprd3ph&igsi=aWw3NTRsdGprd3ph"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Seguinos en Instagram"
+                        className={`fixed right-5 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCB045] text-white shadow-lg transition-transform hover:scale-110 active:scale-95 ${cart.length > 0 && !showCart ? 'bottom-24' : 'bottom-5'}`}
+                    >
+                        <Icons.Instagram />
+                    </a>
 
                     {/* Footer */}
                     <footer className="mt-16 bg-[#292929] px-5 py-10 text-center text-white">
