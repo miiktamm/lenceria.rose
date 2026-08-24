@@ -1531,13 +1531,14 @@
             const [searchQuery, setSearchQuery] = useState("");
             const [cart, setCart] = useState([]);
             const [showCart, setShowCart] = useState(false);
+            const [showCheckoutNotice, setShowCheckoutNotice] = useState(false);
             const [showMenu, setShowMenu] = useState(false);
             const [showSizeGuide, setShowSizeGuide] = useState(false);
             const [selectedProduct, setSelectedProduct] = useState(null);
             const [selectedSizes, setSelectedSizes] = useState({});
             const [selectedColors, setSelectedColors] = useState({});
             const [selectedImageIndices, setSelectedImageIndices] = useState({});
-            const [shippingType, setShippingType] = useState("retiro");
+            const [shippingType, setShippingType] = useState("correoSucursal");
             const [customerNotes, setCustomerNotes] = useState("");
             const [activeSlide, setActiveSlide] = useState(0);
             const [bestSellerIndex, setBestSellerIndex] = useState(0);
@@ -1585,10 +1586,9 @@
 
             // Costos de envío personalizables
             const shippingCosts = {
-                retiro: 0,
-                caba: 4500,
-                gba: 6500,
-                correo: 7500
+                correoSucursal: 6400,
+                correoDomicilio: 8900,
+                acuerdo: 0
             };
 
             const handleSizeChange = (productId, size) => {
@@ -1717,7 +1717,7 @@
                 if (window.confirm("¿Querés vaciar el carrito? Esta acción no se puede deshacer.")) {
                     setCart([]);
                     setCustomerNotes("");
-                    setShippingType("retiro");
+                    setShippingType("correoSucursal");
                 }
             };
 
@@ -1762,10 +1762,9 @@
                 message += `*Subtotal:* $${subtotal.toLocaleString('es-AR')}\n`;
 
                 const shippingLabel = {
-                    retiro: "Retiro en Showroom / Local (Sin Cargo)",
-                    caba: "Envío Mensajería CABA ($" + shippingCosts.caba.toLocaleString('es-AR') + ")",
-                    gba: "Envío Mensajería GBA ($" + shippingCosts.gba.toLocaleString('es-AR') + ")",
-                    correo: "Envío Correo Argentino ($" + shippingCosts.correo.toLocaleString('es-AR') + ")"
+                    correoSucursal: "Correo Argentino - Retiro en sucursal ($" + shippingCosts.correoSucursal.toLocaleString('es-AR') + ")",
+                    correoDomicilio: "Correo Argentino - Envío a domicilio ($" + shippingCosts.correoDomicilio.toLocaleString('es-AR') + ")",
+                    acuerdo: "Acuerdo el envío con el vendedor (a coordinar)"
                 }[shippingType];
 
                 message += `*Opción de Entrega:* ${shippingLabel}\n`;
@@ -1783,7 +1782,7 @@
             return (
                 <div className="min-h-screen pb-28">
                     {/* Main Header */}
-                    <header className="sticky top-0 z-30 border-b border-white/10 bg-[#292929] shadow-sm">
+                    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#292929] shadow-sm">
                         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-2 sm:px-8">
                             <button
                                 onClick={() => setShowMenu(true)}
@@ -1828,6 +1827,7 @@
                             ))}
                         </div>
                     </header>
+                    <div aria-hidden="true" className="h-[88px] sm:h-[92px]" />
 
                     {/* Hero Carousel */}
                     <section className="relative w-full overflow-hidden border-b border-roseAccent/60 bg-[#151315]">
@@ -1977,7 +1977,7 @@
                     </section>
 
                     {/* Main Content Area */}
-                    <main id="catalogo" className="catalog-page-light mx-auto max-w-6xl space-y-6 px-4 pt-8 sm:px-6">
+                    <main id="catalogo" className="catalog-page-light mx-auto max-w-6xl scroll-mt-24 space-y-6 px-4 pt-8 sm:px-6 sm:scroll-mt-28">
 
                         {/* Dynamic Category Title Banner */}
                         <div className="flex justify-between items-center border-b border-roseAccent pb-2">
@@ -2146,7 +2146,7 @@
                         )}
                     </main>
 
-                    <section id="guia-talles" className="mt-16 bg-[#111011] px-4 py-12 sm:px-6 sm:py-16">
+                    <section id="guia-talles" className="mt-16 scroll-mt-24 bg-[#111011] px-4 py-12 sm:px-6 sm:scroll-mt-28 sm:py-16">
                         <div className="mx-auto max-w-6xl">
                             <div className="mb-7 text-center">
                                 <p className="font-brand text-[10px] font-bold tracking-[0.28em] text-roseMagenta uppercase">Guía de talles</p>
@@ -2179,7 +2179,7 @@
                         </div>
                     </section>
 
-                    <section id="guia-talles-pijamas" className="bg-[#FFF7F9] px-4 py-12 sm:px-6 sm:py-16">
+                    <section id="guia-talles-pijamas" className="scroll-mt-24 bg-[#FFF7F9] px-4 py-12 sm:px-6 sm:scroll-mt-28 sm:py-16">
                         <div className="mx-auto max-w-6xl">
                             <img
                                 src="assets/tallespijamas.png"
@@ -2475,21 +2475,20 @@
                                                 </label>
                                                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                                     {[
-                                                        { key: 'retiro', title: 'Retiro en Showroom / Local', cost: 'GRATIS' },
-                                                        { key: 'caba', title: 'Envío Mensajería CABA', cost: `$${shippingCosts.caba.toLocaleString('es-AR')}` },
-                                                        { key: 'gba', title: 'Envío Mensajería GBA', cost: `$${shippingCosts.gba.toLocaleString('es-AR')}` },
-                                                        { key: 'correo', title: 'Envío Correo Argentino', cost: `$${shippingCosts.correo.toLocaleString('es-AR')}` }
+                                                        { key: 'correoSucursal', title: 'Correo Argentino Retiro en sucursal', cost: `$${shippingCosts.correoSucursal.toLocaleString('es-AR')}` },
+                                                        { key: 'correoDomicilio', title: 'Correo Argentino envío a domicilio', cost: `$${shippingCosts.correoDomicilio.toLocaleString('es-AR')}` },
+                                                        { key: 'acuerdo', title: 'Acuerdo el envío con el vendedor', cost: 'A coordinar' }
                                                     ].map(option => (
                                                         <button
                                                             key={option.key}
                                                             onClick={() => setShippingType(option.key)}
-                                                            className={`flex items-center justify-between p-3 rounded-xl border text-xs font-medium transition-all ${shippingType === option.key
+                                                            className={`flex items-center justify-between gap-3 p-3 rounded-xl border text-xs font-medium transition-all ${shippingType === option.key
                                                                 ? 'bg-roseBlush border-roseMagenta text-roseDark font-bold'
                                                                 : 'bg-white border-gray-200 text-gray-600'
                                                                 }`}
                                                         >
-                                                            <span>{option.title}</span>
-                                                            <span className="font-bold text-roseMagenta">{option.cost}</span>
+                                                            <span className="flex-1 text-left">{option.title}</span>
+                                                            <span className="shrink-0 text-right font-bold text-roseMagenta">{option.cost}</span>
                                                         </button>
                                                     ))}
                                                 </div>
@@ -2523,7 +2522,7 @@
                                             <div className="flex justify-between">
                                                 <span>Costo de Envío</span>
                                                 <span className="font-semibold text-roseDark">
-                                                    {shippingPrice === 0 ? 'GRATIS' : `$${shippingPrice.toLocaleString('es-AR')}`}
+                                                    {shippingType === 'acuerdo' ? 'A COORDINAR' : `$${shippingPrice.toLocaleString('es-AR')}`}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between text-base font-brand font-bold text-roseDark pt-2 border-t border-gray-100">
@@ -2533,7 +2532,7 @@
                                         </div>
 
                                         <button
-                                            onClick={handleCheckoutWhatsApp}
+                                            onClick={() => setShowCheckoutNotice(true)}
                                             className="w-full py-3.5 rounded-2xl bg-roseMagenta hover:bg-roseDark text-white font-brand font-bold text-xs tracking-widest uppercase flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-all"
                                         >
                                             <Icons.WhatsApp />
@@ -2547,6 +2546,57 @@
                                         </button>
                                     </div>
                                 )}
+                            </div>
+                        </div>
+                    )}
+
+                    {showCheckoutNotice && (
+                        <div className="fixed inset-0 z-[60] flex items-center justify-center p-5">
+                            <div
+                                className="absolute inset-0 bg-roseDark/60 backdrop-blur-sm"
+                                onClick={() => setShowCheckoutNotice(false)}
+                            />
+                            <div
+                                className="cart-panel cart-panel relative flex aspect-square w-full max-w-sm flex-col items-center justify-center overflow-hidden rounded-none border border-roseAccent bg-white p-6 text-center shadow-2xl sm:p-8"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="checkout-notice-title"
+                            >
+                                <button
+                                    onClick={() => setShowCheckoutNotice(false)}
+                                    className="absolute right-4 top-4 rounded-full p-2 text-roseDark transition-colors hover:bg-roseBlush"
+                                    aria-label="Cerrar aviso"
+                                >
+                                    <Icons.X />
+                                </button>
+                                <img
+                                    src="assets/6.png"
+                                    alt=""
+                                    className="mb-3 h-16 w-16 rounded-2xl border border-roseAccent bg-white object-contain p-2"
+                                />
+                                <p className="font-brand text-xs font-bold uppercase tracking-[0.22em] text-black">Importante</p>
+                                <h3 id="checkout-notice-title" className="mt-2 font-brand text-xl font-bold uppercase leading-tight text-black">
+                                    Las prendas <span className="text-roseMagenta">no tienen cambio</span>
+                                </h3>
+                                <p className="mt-3 max-w-xs text-sm leading-relaxed text-black">
+                                    Si tenés dudas sobre el talle elegido, mandanos un mensajito y te ayudamos.
+                                </p>
+                                <button
+                                    onClick={() => {
+                                        setShowCheckoutNotice(false);
+                                        handleCheckoutWhatsApp();
+                                    }}
+                                    className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl bg-roseMagenta px-4 py-2.5 font-brand text-[11px] font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-roseDark active:scale-95"
+                                >
+                                    <Icons.WhatsApp />
+                                    Ir a WhatsApp
+                                </button>
+                                <button
+                                    onClick={() => setShowCheckoutNotice(false)}
+                                    className="mt-3 font-brand text-[10px] font-bold uppercase tracking-wider text-roseDark underline decoration-roseAccent underline-offset-4 transition-colors hover:text-roseMagenta"
+                                >
+                                    Volver al carrito
+                                </button>
                             </div>
                         </div>
                     )}
